@@ -1,7 +1,7 @@
 # Проект «Киноман»
 
 * Студент: [Вячеслав Гурин](https://up.htmlacademy.ru/ecmascript/17/user/1866227).
-* Наставник: `Неизвестно`.
+* Наставник: [Максим Волков](https://up.htmlacademy.ru/ecmascript/17/user/1508839).
 
 ---
 
