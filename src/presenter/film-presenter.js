@@ -12,7 +12,6 @@ export default class FilmPresenter {
     render(new FilmSectionView(), filmContainer);
 
 
-
   };
 }
 
