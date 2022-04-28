@@ -13,7 +13,7 @@
   "scripts": {
     "lint": "eslint src/",
     "build": "webpack --mode production",
-    "start": "webpack serve --mode developmentnpm"
+    "start": "webpack serve --mode development"
   },
   "devDependencies": {
     "eslint": "8.13.0",

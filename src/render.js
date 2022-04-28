@@ -15,6 +15,8 @@ const createElement = (template) => {
 const render = (component, container, place = RenderPosition.BEFOREEND) => {
   const element = component.getElement();
 
+  // container.insertAdjacentElement(place, element);
+
   switch (place) {
     case RenderPosition.BEFOREBEGIN:
       container.before(element);
