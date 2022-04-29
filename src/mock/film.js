@@ -9,17 +9,17 @@ const TITLE = [
 ];
 
 const DESCRIPTIONS = [
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  'Cras aliquet varius magna, non porta ligula feugiat eget.',
-  'Fusce tristique felis at fermentum pharetra.',
-  'Aliquam id orci ut lectus varius viverra.',
-  'Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.',
-  'Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum.',
-  'Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui.',
-  'Sed sed nisi sed augue convallis suscipit in sed felis.',
-  'Aliquam erat volutpat.',
-  'Nunc fermentum tortor ac porta dapibus.',
-  'In rutrum ac purus sit amet tempus.',
+  'Жизнь и репутация Питера Паркера оказываются под угрозой, поскольку Мистерио раскрыл всему миру тайну личности Человека-паука.',
+  'После двух лет поисков правосудия на улицах Готэма для своих сограждан Бэтмен становится олицетворением беспощадного возмездия. ',
+  'Уверенная в себе 13-летняя Мэй Ли разрывается между тем, чтобы оставаться прилежной и послушной маминой дочкой.',
+  '1909 г. Два отважных исследователя отправляются на поиски следов датской экспедиции, участники которой исследовали Гренландию.',
+  'Служба в армии с детства была мечтой Джеймса Рида, а зеленый берет — предметом гордости. ',
+  'Действие разворачивается в детском лагере «Красный сокол».',
+  'Ветеран Уилл Шарп отчаянно нуждается в деньгах, чтобы спасти смертельно больную жену.',
+  'Ноа после череды неудачных свиданий отчаивается найти подходящего партнера с помощью приложение для знакомств.',
+  'В постапокалиптическом мире шесть солдат, выполняющих секретную миссию, должны перевезти особый груз через замерзший архипелаг.',
+  'История жизни и приключений легендарного советского боксера Валерия Попенченко, чемпиона СССР.',
+  'Питер и Эмма никогда не были знакомы, но их мгновенно связывает одна вещь...',
 ];
 
 const GENRES = [
@@ -31,14 +31,24 @@ const GENRES = [
   'Criminal',
 ];
 
+const POSTERS = [
+  'made-for-each-other.png',
+  'popeye-meets-sinbad.png',
+  'sagebrush-trail.jpg',
+  'santa-claus-conquers-the-martians.jpg',
+  'the-dance-of-life.jpg',
+  'the-great-flamarion.jpg',
+  'the-man-with-the-golden-arm.jpg',
+];
+
 const generateFilm = (id, comments) => ({
   id: id,
-  comments: Array.from({length: getRandomInteger(0, 5)}, () => getRandomArrayElement(comments.map((comment) => comment.id))),
+  comments: Array.from({length: getRandomInteger(0, comments.length)}, () => getRandomArrayElement(comments.map((comment) => comment.id))),
   filmInfo: {
     title: getRandomArrayElement(TITLE),
     alternativeTitle: 'Laziness Who Sold Themselves',
     totalRating: getRandomInteger(10, 100) / 10,
-    poster: 'images/posters/blue-blazes.jpg',
+    poster: `images/posters/${getRandomArrayElement(POSTERS)}`,
     ageRating: 0,
     director: 'Tom Ford',
     writers: [
@@ -56,10 +66,10 @@ const generateFilm = (id, comments) => ({
     description: getRandomArrayElement(DESCRIPTIONS)
   },
   userDetails: {
-    watchlist: false,
-    alreadyWatched: true,
+    watchlist: Boolean(getRandomInteger(0,1)),
+    alreadyWatched: Boolean(getRandomInteger(0,1)),
     watchingDate: generateDate(),
-    favorite: false
+    favorite: Boolean(getRandomInteger(0,1))
   }
 });
 

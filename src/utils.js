@@ -15,7 +15,7 @@ const getRandomArrayElement = (array) => {
 };
 
 const generateDate = () => {
-  const daysGap = getRandomInteger(-1, -365);
+  const daysGap = getRandomInteger(-1, -1825);
 
   return dayjs().add(daysGap, 'day').toDate();
 };
