@@ -15,10 +15,10 @@ const AUTHORS = [
 ];
 
 const EMOJIS = [
-  'smile.png',
-  'sleeping.png',
-  'puke.png',
-  'angry.png',
+  'smile',
+  'sleeping',
+  'puke',
+  'angry',
 ];
 
 const generateComment = (id) => ({
@@ -26,7 +26,7 @@ const generateComment = (id) => ({
   author: getRandomArrayElement(AUTHORS),
   comment: getRandomArrayElement(TEXTS),
   date: generateDate(),
-  emotion: `./images/emoji/${getRandomArrayElement(EMOJIS)}`,
+  emotion: `${getRandomArrayElement(EMOJIS)}`,
 });
 
 export const generateComments = (size) => createDataIds(size).map((id) => generateComment(id));

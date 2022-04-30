@@ -2,9 +2,9 @@ import {createElement} from '../render.js';
 
 const getFilters = (films) => {
   const filtersMap = {
-    watchlist: (x) => x.filter((film) => film.userDetails.watchlist).length,
-    history: (x) => x.filter((film) => film.userDetails.alreadyWatched).length,
-    favorites: (x) => x.filter((film) => film.userDetails.favorite).length,
+    watchlist: (arr) => arr.filter((film) => film.userDetails.watchlist).length,
+    history: (arr) => arr.filter((film) => film.userDetails.alreadyWatched).length,
+    favorites: (arr) => arr.filter((film) => film.userDetails.favorite).length,
   };
 
   return Object.entries(filtersMap).map(([filterName, countFilms]) => (

@@ -1,7 +1,7 @@
 import {createElement} from '../render.js';
 import dayjs from 'dayjs';
 
-const createBoardTemplate = (film) => `<article class="film-card">
+const createBoardTemplate = (film) => `<article class="film-card" id=${film.id}>
 <a class="film-card__link">
   <h3 class="film-card__title">${film.filmInfo.title}</h3>
   <p class="film-card__rating">${film.filmInfo.totalRating}</p>
@@ -11,8 +11,8 @@ const createBoardTemplate = (film) => `<article class="film-card">
     <span class="film-card__genre">${film.filmInfo.genre[0]}</span>
   </p>
   <img src="${film.filmInfo.poster}" alt="" class="film-card__poster">
-  <p class="film-card__description">${film.filmInfo.description}</p>
-  <span class="film-card__comments">${film.comments.length}</span>
+  <p class="film-card__description">${film.filmInfo.description.length > 140? `${film.filmInfo.description.slice(0,139)  }...` : film.filmInfo.description}</p>
+  <span class="film-card__comments">${film.comments.length} ${film.comments.length === 1? 'comment' : 'comments'}</span>
 </a>
 <div class="film-card__controls">
   <button class="film-card__controls-item film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>

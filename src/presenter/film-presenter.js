@@ -29,16 +29,6 @@ export default class FilmPresenter {
       films.slice(0, ALL_MOVIES_LENGTH).map((film) => render(new FilmCardView(film), allMoviesListContainerElement));
       films.sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating).slice(0, TOP_RATED_LENGTH).map((film) => render(new FilmCardView(film), topRatedListContainerElement));
       films.sort((a, b) => b.comments.length - a.comments.length).slice(0, MOST_COMMENTED_LENGTH).map((film) => render(new FilmCardView(film), mostCommentedListContainerElement));
-
-
-
-
-
-
-
-
-
-
     }
   };
 }

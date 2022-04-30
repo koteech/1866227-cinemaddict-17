@@ -41,22 +41,38 @@ const POSTERS = [
   'the-man-with-the-golden-arm.jpg',
 ];
 
+const WRITERS = [
+  'Owen Grady',
+  'Claire Dearing',
+  'Alan Grant',
+  'Ellie Sattler',
+  'Ian Malcolm',
+  'Ramsay Cole',
+  'Dr. Zia Rodriguez',
+];
+
+const ACTORS = [
+  'Chris Pratt',
+  'Bryce Dallas Howard',
+  'Sam Neill',
+  'Laura Dern',
+  'Jeff Goldblum',
+  'Mamoudou Athie',
+  'Scott Haze',
+];
+
 const generateFilm = (id, comments) => ({
   id: id,
-  comments: Array.from({length: getRandomInteger(0, comments.length)}, () => getRandomArrayElement(comments.map((comment) => comment.id))),
+  comments: Array.from({length: getRandomInteger(0, 6)}, () => getRandomArrayElement(comments.map((comment) => comment.id))),
   filmInfo: {
     title: getRandomArrayElement(TITLE),
     alternativeTitle: 'Laziness Who Sold Themselves',
     totalRating: getRandomInteger(10, 100) / 10,
     poster: `images/posters/${getRandomArrayElement(POSTERS)}`,
-    ageRating: 0,
+    ageRating: getRandomInteger(0, 18),
     director: 'Tom Ford',
-    writers: [
-      'Takeshi Kitano'
-    ],
-    actors: [
-      'Morgan Freeman'
-    ],
+    writers: Array.from({length: getRandomInteger(1, 3)}, () => getRandomArrayElement(WRITERS)),
+    actors: Array.from({length: getRandomInteger(1, 3)}, () => getRandomArrayElement(ACTORS)),
     release: {
       date: generateDate(),
       releaseCountry: 'Finland'
