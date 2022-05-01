@@ -1,15 +1,35 @@
 import {createElement} from '../render.js';
 
-const createFilterTemplate = () => `<nav class="main-navigation">
+const getFilters = (films) => {
+  const filtersMap = {
+    watchlist: (arr) => arr.filter((film) => film.userDetails.watchlist).length,
+    history: (arr) => arr.filter((film) => film.userDetails.alreadyWatched).length,
+    favorites: (arr) => arr.filter((film) => film.userDetails.favorite).length,
+  };
+
+  return Object.entries(filtersMap).map(([filterName, countFilms]) => (
+    {
+      name: filterName,
+      count: countFilms(films),
+    }
+  ));
+};
+
+const createFilterItemTemplate = (filter) => `<a href="#${filter.name}" class="main-navigation__item">${filter.name.charAt(0).toUpperCase() + filter.name.slice(1)} <span class="main-navigation__item-count">${filter.count}</span></a>`;
+
+const createFilterTemplate = (filters) => `<nav class="main-navigation">
   <a href="#all" class="main-navigation__item main-navigation__item--active">All movies</a>
-  <a href="#watchlist" class="main-navigation__item">Watchlist <span class="main-navigation__item-count">0</span></a>
-  <a href="#history" class="main-navigation__item">History <span class="main-navigation__item-count">0</span></a>
-  <a href="#favorites" class="main-navigation__item">Favorites <span class="main-navigation__item-count">0</span></a>
+  ${filters.map((filter) => createFilterItemTemplate(filter)).join(' ')}
 </nav>`;
 
+
 export default class FilterView {
+  constructor(films) {
+    this.filters = getFilters(films);
+  }
+
   getTemplate() {
-    return createFilterTemplate();
+    return createFilterTemplate(this.filters);
   }
 
   getElement() {
