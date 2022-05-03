@@ -70,9 +70,11 @@ export default class FilmPresenter {
       component.element.remove();
       component.removeElement();
       document.removeEventListener('keydown', onEscKeyDown);
+      document.body.classList.remove('hide-overflow');
     }
 
     const onCardClick = () => {
+      document.body.classList.add('hide-overflow');
       this.#filmDetailsComponent = new FilmDetailsView(film);
       render(this.#filmDetailsComponent, document.body);
       this.#comments.filter((comment) => film.comments.includes(comment.id)).forEach((comment) => render(new FilmDetailsCommentView(comment), this.#filmDetailsComponent.element.querySelector('.film-details__comments-list')));
