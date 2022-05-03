@@ -116,24 +116,28 @@ const createFilmDetailsTemplate = (filmInfo, filmCommentsIds) => `<section class
 
 
 export default class FilmDetailsView {
+  #filmInfo = {};
+  #filmCommentsIds = [];
+  #element = null;
+
   constructor(film) {
-    this.filmInfo = film.filmInfo;
-    this.filmCommentsIds = film.comments;
+    this.#filmInfo = film.filmInfo;
+    this.#filmCommentsIds = film.comments;
   }
 
-  getTemplate() {
-    return createFilmDetailsTemplate(this.filmInfo, this.filmCommentsIds);
+  get template() {
+    return createFilmDetailsTemplate(this.#filmInfo, this.#filmCommentsIds);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

@@ -22,23 +22,26 @@ const createBoardTemplate = (film) => `<article class="film-card" id=${film.id}>
 </article>`;
 
 export default class FilmCardView {
+  #film = {};
+  #element = null;
+
   constructor(film) {
-    this.film = film;
+    this.#film = film;
   }
 
-  getTemplate() {
-    return createBoardTemplate(this.film);
+  get template() {
+    return createBoardTemplate(this.#film);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
