@@ -2,7 +2,7 @@ import {generateFilms} from '../mock/film.js';
 import {generateComments} from '../mock/comments.js';
 
 const FILMS_COUNT = 13;
-const TOTAL_COMMENTS_COUNT = 5;
+const TOTAL_COMMENTS_COUNT = 100;
 
 export default class FilmModel {
   #comments = null;
