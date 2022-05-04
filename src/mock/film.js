@@ -63,7 +63,7 @@ const ACTORS = [
 
 const generateFilm = (id, comments) => ({
   id: id,
-  comments: Array.from({length: getRandomInteger(0, 6)}, () => getRandomArrayElement(comments.map((comment) => comment.id))),
+  comments: Array.from({length: getRandomInteger(0, 6)}, () => getRandomArrayElement(comments.map((comment) => comment.id))).filter((item, index, arr) => arr.indexOf(item) === index),
   filmInfo: {
     title: getRandomArrayElement(TITLE),
     alternativeTitle: 'Laziness Who Sold Themselves',

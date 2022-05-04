@@ -14,23 +14,26 @@ ${length !== 0 ? `<p class="profile__rating">${getProfileName(length)[0].charAt(
 </section>`;
 
 export default class ProfileView {
+  #filmWatchedCount = null;
+  #element = null;
+
   constructor(films) {
-    this.filmWatchedCount = films.filter((film) => film.userDetails.alreadyWatched).length;
+    this.#filmWatchedCount = films.filter((film) => film.userDetails.alreadyWatched).length;
   }
 
-  getTemplate() {
-    return createProfileTemplate(this.filmWatchedCount);
+  get template() {
+    return createProfileTemplate(this.#filmWatchedCount);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

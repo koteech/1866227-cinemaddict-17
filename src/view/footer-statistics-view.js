@@ -3,23 +3,26 @@ import {createElement} from '../render.js';
 const createFooterStatisticsTemplate = (filmsCount) => `<p>${filmsCount} movies inside</p>`;
 
 export default class FooterStatisticsView {
+  #filmsCount = null;
+  #element = null;
+
   constructor(films) {
-    this.filmsCount = films.length;
+    this.#filmsCount = films.length;
   }
 
-  getTemplate() {
-    return createFooterStatisticsTemplate(this.filmsCount);
+  get template() {
+    return createFooterStatisticsTemplate(this.#filmsCount);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

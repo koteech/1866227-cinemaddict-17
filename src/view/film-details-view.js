@@ -52,7 +52,7 @@ const createFilmDetailsTemplate = (filmInfo, filmCommentsIds) => `<section class
             <td class="film-details__cell">${filmInfo.release.releaseCountry}</td>
           </tr>
           <tr class="film-details__row">
-            <td class="film-details__term">Genres</td>
+            <td class="film-details__term">${filmInfo.genre.length > 1 ? 'Genres' : 'Genre'}</td>
             <td class="film-details__cell">
               ${filmInfo.genre.map((item) => `<span class="film-details__genre">${item}</span>`).join(' ')}
               </td>
@@ -116,24 +116,28 @@ const createFilmDetailsTemplate = (filmInfo, filmCommentsIds) => `<section class
 
 
 export default class FilmDetailsView {
+  #filmInfo = {};
+  #filmCommentsIds = [];
+  #element = null;
+
   constructor(film) {
-    this.filmInfo = film.filmInfo;
-    this.filmCommentsIds = film.comments;
+    this.#filmInfo = film.filmInfo;
+    this.#filmCommentsIds = film.comments;
   }
 
-  getTemplate() {
-    return createFilmDetailsTemplate(this.filmInfo, this.filmCommentsIds);
+  get template() {
+    return createFilmDetailsTemplate(this.#filmInfo, this.#filmCommentsIds);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
