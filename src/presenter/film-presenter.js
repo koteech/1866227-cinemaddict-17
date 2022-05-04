@@ -48,8 +48,40 @@ export default class FilmPresenter {
 
   init = () => {
     this.#renderPage();
-
+    this.#renderFilmCards();
   };
+
+  #renderPage () {
+    render(new ProfileView(this.#films), this.#profileElement);
+    render(new FooterStatisticsView(this.#films), this.#footerStatisticsElement);
+    render(new FilterView(this.#films), this.#mainContainer);
+    render(this.#sortComponent, this.#mainContainer);
+    render(this.#filmSectionComponent, this.#mainContainer);
+    render(this.#allFilmListComponent, this.#filmSectionComponent.element);
+
+    if (this.#films.length < 1) {
+      render(new FilmNoDataView(), this.#allFilmListComponent.element);
+      this.#sortComponent.element.remove();
+      this.#allFilmListComponent.element.firstElementChild.remove();
+      return true;
+    }
+
+    render(this.#mostCommentedFilmListComponent, this.#filmSectionComponent.element);
+    render(this.#topRatedFilmListComponent, this.#filmSectionComponent.element);
+    render(this.#allFilmListContainerComponent, this.#allFilmListComponent.element);
+    render(this.#topRatedFilmListContainerComponent, this.#topRatedFilmListComponent.element);
+    render(this.#mostCommentedFilmListContainerComponent, this.#mostCommentedFilmListComponent.element);
+  }
+
+  #renderFilmCards () {
+    this.#films.slice(0, Math.min(this.#films.length, ALL_FILM_COUNT_PER_STEP)).forEach((film) => this.#renderFilm(film, this.#allFilmListContainerComponent.element));
+    if (this.#films.length > ALL_FILM_COUNT_PER_STEP) {
+      render(this.#loadMoreButtonComponent, this.#allFilmListComponent.element);
+      this.#loadMoreButtonComponent.element.addEventListener('click', this.#handleLoadMoreButtonClick);
+    }
+    this.#films.sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating).slice(0, Math.min(this.#films.length, TOP_RATED_FILM_COUNT_PER_STEP)).forEach((film) => this.#renderFilm(film, this.#topRatedFilmListContainerComponent.element));
+    this.#films.sort((a, b) => b.comments.length - a.comments.length).slice(0, Math.min(this.#films.length, MOST_COMMENTED_FILM_COUNT_PER_STEP)).forEach((film) => this.#renderFilm(film, this.#mostCommentedFilmListContainerComponent.element));
+  }
 
   #renderFilm (film, FilmCountainerElement) {
     const filmCardComponent = new FilmCardView(film);
@@ -75,14 +107,18 @@ export default class FilmPresenter {
 
     const onCardClick = () => {
       document.body.classList.add('hide-overflow');
-      this.#filmDetailsComponent = new FilmDetailsView(film);
-      render(this.#filmDetailsComponent, document.body);
-      this.#comments.filter((comment) => film.comments.includes(comment.id)).forEach((comment) => render(new FilmDetailsCommentView(comment), this.#filmDetailsComponent.element.querySelector('.film-details__comments-list')));
+      this.#renderFilmDetails(film);
       document.addEventListener('keydown', onEscKeyDown);
       this.#filmDetailsComponent.element.querySelector('.film-details__close-btn').addEventListener('click', handleCloseButtonClick);
     };
 
     filmCardComponent.element.querySelector('.film-card__link').addEventListener('click', onCardClick);
+  }
+
+  #renderFilmDetails (film) {
+    this.#filmDetailsComponent = new FilmDetailsView(film);
+    render(this.#filmDetailsComponent, document.body);
+    this.#filmModel.getCommentsByFilm(film.id).forEach((comment) => render(new FilmDetailsCommentView(comment), this.#filmDetailsComponent.element.querySelector('.film-details__comments-list')));
   }
 
   #handleLoadMoreButtonClick = (evt) => {
@@ -93,39 +129,4 @@ export default class FilmPresenter {
       this.#loadMoreButtonComponent.element.remove();
     }
   };
-
-  #renderPage () {
-    render(new ProfileView(this.#films), this.#profileElement);
-    render(new FooterStatisticsView(this.#films), this.#footerStatisticsElement);
-    render(new FilterView(this.#films), this.#mainContainer);
-    render(this.#sortComponent, this.#mainContainer);
-    //Рендерим секцию film и 3 подсекции All, Top Rated и Most Commented
-    render(this.#filmSectionComponent, this.#mainContainer);
-    render(this.#allFilmListComponent, this.#filmSectionComponent.element);
-
-    if (this.#films.length < 1) {
-      render(new FilmNoDataView(), this.#allFilmListComponent.element);
-      this.#sortComponent.element.remove();
-      this.#allFilmListComponent.element.firstElementChild.remove();
-      return true;
-    }
-
-    render(this.#mostCommentedFilmListComponent, this.#filmSectionComponent.element);
-    render(this.#topRatedFilmListComponent, this.#filmSectionComponent.element);
-    //Рендерим внутри секций по фильтмам контейнера для карточек.
-    render(this.#allFilmListContainerComponent, this.#allFilmListComponent.element);
-    render(this.#topRatedFilmListContainerComponent, this.#topRatedFilmListComponent.element);
-    render(this.#mostCommentedFilmListContainerComponent, this.#mostCommentedFilmListComponent.element);
-
-    //Рендерим 3 разных секции карточек фильмов и вро все фильмы добавляем кнопку loadmore для отображения нужных элементов.
-    this.#films.slice(0, Math.min(this.#films.length, ALL_FILM_COUNT_PER_STEP)).forEach((film) => this.#renderFilm(film, this.#allFilmListContainerComponent.element));
-    if (this.#films.length > ALL_FILM_COUNT_PER_STEP) {
-      render(this.#loadMoreButtonComponent, this.#allFilmListComponent.element);
-      this.#loadMoreButtonComponent.element.addEventListener('click', this.#handleLoadMoreButtonClick);
-    }
-
-    this.#films.sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating).slice(0, Math.min(this.#films.length, TOP_RATED_FILM_COUNT_PER_STEP)).forEach((film) => this.#renderFilm(film, this.#topRatedFilmListContainerComponent.element));
-    this.#films.sort((a, b) => b.comments.length - a.comments.length).slice(0, Math.min(this.#films.length, MOST_COMMENTED_FILM_COUNT_PER_STEP)).forEach((film) => this.#renderFilm(film, this.#mostCommentedFilmListContainerComponent.element));
-
-  }
 }
