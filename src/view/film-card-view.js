@@ -1,5 +1,6 @@
-import {createElement} from '../render.js';
 import dayjs from 'dayjs';
+import {getTimeFromMins} from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createBoardTemplate = (film) => `<article class="film-card" id=${film.id}>
 <a class="film-card__link">
@@ -7,7 +8,7 @@ const createBoardTemplate = (film) => `<article class="film-card" id=${film.id}>
   <p class="film-card__rating">${film.filmInfo.totalRating}</p>
   <p class="film-card__info">
     <span class="film-card__year">${dayjs(film.filmInfo.release.date).year()}</span>
-    <span class="film-card__duration">1h 59m</span>
+    <span class="film-card__duration">${getTimeFromMins(film.filmInfo.runtime)}</span>
     <span class="film-card__genre">${film.filmInfo.genre[0]}</span>
   </p>
   <img src="${film.filmInfo.poster}" alt="" class="film-card__poster">
@@ -21,11 +22,11 @@ const createBoardTemplate = (film) => `<article class="film-card" id=${film.id}>
 </div>
 </article>`;
 
-export default class FilmCardView {
+export default class FilmCardView extends AbstractView {
   #film = {};
-  #element = null;
 
   constructor(film) {
+    super();
     this.#film = film;
   }
 
@@ -33,15 +34,14 @@ export default class FilmCardView {
     return createBoardTemplate(this.#film);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setClickHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.querySelector('.film-card__link').addEventListener('click', this.#clickHandler);
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    document.body.classList.add('hide-overflow');
+    this._callback.click();
+  };
 }
