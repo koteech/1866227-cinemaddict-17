@@ -1,32 +1,20 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createFilmListTemplate = (title, isExtra) => `<section class="films-list ${isExtra ? 'films-list--extra' : ''}">
 <h2 class="films-list__title ${!isExtra ? 'visually-hidden' : ''}">${title}</h2>
 </section>`;
 
-export default class FilmListView {
+export default class FilmListView extends AbstractView{
   #title = null;
   #isExtra = null;
-  #element = null;
 
   constructor(title, isExtra) {
+    super();
     this.#title = title;
     this.#isExtra = isExtra;
   }
 
   get template() {
     return createFilmListTemplate(this.#title, this.#isExtra);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

@@ -24,7 +24,7 @@ export default class FilmModel {
   }
 
   getCommentsByFilm(filmId) {
-    const selectedFilm = this.#films.filter((film) => film.id === filmId)[0];
+    const selectedFilm = this.#films.find((film) => film.id === filmId);
     return this.#comments.filter((comment) => selectedFilm.comments.includes(comment.id));
   }
 }

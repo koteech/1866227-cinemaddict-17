@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {getDateForComment} from '../utils.js';
 
 const createFilmDetailsCommentTemplate = (comment) => `<li class="film-details__comment">
@@ -15,27 +15,15 @@ const createFilmDetailsCommentTemplate = (comment) => `<li class="film-details__
 </div>
 </li>`;
 
-export default class FilmDetailsCommentView {
+export default class FilmDetailsCommentView extends AbstractView {
   #comment = {};
-  #element = null;
 
   constructor(comment) {
+    super();
     this.#comment = comment;
   }
 
   get template() {
     return createFilmDetailsCommentTemplate(this.#comment);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

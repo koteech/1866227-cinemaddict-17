@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {getHumanDate, getTimeFromMins} from '../utils.js';
 
 const createFilmDetailsTemplate = (filmInfo, filmCommentsIds) => `<section class="film-details">
@@ -115,12 +115,12 @@ const createFilmDetailsTemplate = (filmInfo, filmCommentsIds) => `<section class
 </section>`;
 
 
-export default class FilmDetailsView {
+export default class FilmDetailsView extends AbstractView {
   #filmInfo = {};
   #filmCommentsIds = [];
-  #element = null;
 
   constructor(film) {
+    super();
     this.#filmInfo = film.filmInfo;
     this.#filmCommentsIds = film.comments;
   }
@@ -129,15 +129,27 @@ export default class FilmDetailsView {
     return createFilmDetailsTemplate(this.#filmInfo, this.#filmCommentsIds);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  // setEscKeydownHandler = (callback) => {
+  //   this._callback.escKeydown = callback;
+  //   document.addEventListener('keydown', this.#escKeydownHandler);
+  // };
 
-    return this.#element;
-  }
+  setCloseButtonClickHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeButtonClickHandler);
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  // #escKeydownHandler = (evt) => {
+  //   if (evt.key === 'Escape' || evt.key === 'Esc') {
+  //     evt.preventDefault();
+  //     document.body.classList.remove('hide-overflow');
+  //     this._callback.escKeydown();
+  //   }
+  // };
+
+  #closeButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    document.body.classList.remove('hide-overflow');
+    this._callback.click();
+  };
 }

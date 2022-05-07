@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const profileMap = {
   novice: [1, 10],
@@ -13,27 +13,15 @@ ${length !== 0 ? `<p class="profile__rating">${getProfileName(length)[0].charAt(
 <img class="profile__avatar" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
 </section>`;
 
-export default class ProfileView {
+export default class ProfileView extends AbstractView {
   #filmWatchedCount = null;
-  #element = null;
 
   constructor(films) {
+    super();
     this.#filmWatchedCount = films.filter((film) => film.userDetails.alreadyWatched).length;
   }
 
   get template() {
     return createProfileTemplate(this.#filmWatchedCount);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }
