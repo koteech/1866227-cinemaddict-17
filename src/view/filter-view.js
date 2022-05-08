@@ -1,19 +1,17 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-const getFilters = (films) => {
-  const filtersMap = {
-    watchlist: (arr) => arr.filter((film) => film.userDetails.watchlist).length,
-    history: (arr) => arr.filter((film) => film.userDetails.alreadyWatched).length,
-    favorites: (arr) => arr.filter((film) => film.userDetails.favorite).length,
-  };
-
-  return Object.entries(filtersMap).map(([filterName, countFilms]) => (
-    {
-      name: filterName,
-      count: countFilms(films),
-    }
-  ));
+const filtersMap = {
+  watchlist: (arr) => arr.filter((film) => film.userDetails.watchlist).length,
+  history: (arr) => arr.filter((film) => film.userDetails.alreadyWatched).length,
+  favorites: (arr) => arr.filter((film) => film.userDetails.favorite).length,
 };
+
+const getFilters = (films) => Object.entries(filtersMap).map(([filterName, countFilms]) => (
+  {
+    name: filterName,
+    count: countFilms(films),
+  }
+));
 
 const createFilterItemTemplate = (filter) => `<a href="#${filter.name}" class="main-navigation__item">${filter.name.charAt(0).toUpperCase() + filter.name.slice(1)} <span class="main-navigation__item-count">${filter.count}</span></a>`;
 
