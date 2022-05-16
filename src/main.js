@@ -1,12 +1,13 @@
-import FilmPresenter from './presenter/film-presenter.js';
+import BoardPresenter from './presenter/board-presenter.js';
 import FilmModel from './model/film-model.js';
 
-const filmPresenter = new FilmPresenter(
+const boardPresenter = new BoardPresenter(
   document.querySelector('.main'),
   document.querySelector('.header'),
   document.querySelector('.footer__statistics'),
+  document.body,
   new FilmModel()
 );
 
-filmPresenter.init();
+boardPresenter.init();
 

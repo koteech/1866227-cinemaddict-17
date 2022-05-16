@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {getDateForComment} from '../utils.js';
+import {getDateForComment} from '../utils/utils.js';
 
 const createFilmDetailsCommentTemplate = (comment) => `<li class="film-details__comment">
 <span class="film-details__comment-emoji">

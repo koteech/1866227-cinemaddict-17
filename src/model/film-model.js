@@ -5,27 +5,27 @@ const FILMS_COUNT = 13;
 const TOTAL_COMMENTS_COUNT = 100;
 
 export default class FilmModel {
-  #comments = null;
-  #films = null;
+  #commentList = null;
+  #filmList = null;
 
   get comments() {
-    if (!this.#comments) {
-      this.#comments = generateComments(TOTAL_COMMENTS_COUNT);
+    if (!this.#commentList) {
+      this.#commentList = generateComments(TOTAL_COMMENTS_COUNT);
     }
-    return this.#comments;
+    return this.#commentList;
   }
 
   get films() {
-    if (!this.#films) {
-      this.#films = generateFilms(FILMS_COUNT, this.#comments);
+    if (!this.#filmList) {
+      this.#filmList = generateFilms(FILMS_COUNT, this.comments);
     }
 
-    return this.#films;
+    return this.#filmList;
   }
 
   getCommentsByFilm(filmId) {
-    const selectedFilm = this.#films.find((film) => film.id === filmId);
-    return this.#comments.filter((comment) => selectedFilm.comments.includes(comment.id));
+    const selectedFilm = this.films.find((film) => film.id === filmId);
+    return this.comments.filter((comment) => selectedFilm.comments.includes(comment.id));
   }
 }
 
