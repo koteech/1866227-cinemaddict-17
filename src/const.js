@@ -1,5 +1,15 @@
-export const SectionTitle = {
-  all: 'All movies. Upcoming',
-  topRated: 'Top rated',
-  mostCommented: 'Most commented',
+export const SECTION_EXTRA_TYPE = 'extra';
+
+export const SectionSettings = {
+  ALL: {
+    TITLE: 'All movies. Upcoming',
+  },
+  TOP_RATED: {
+    TITLE: 'Top rated',
+    TYPE: SECTION_EXTRA_TYPE,
+  },
+  MOST_COMMENTED: {
+    TITLE: 'Most commented',
+    TYPE: SECTION_EXTRA_TYPE,
+  },
 };
