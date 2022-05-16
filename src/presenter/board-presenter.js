@@ -10,11 +10,9 @@ import FilmListContainerView from '../view/film-list-container-view.js';
 import LoadMoreButtonView from '../view/load-more-button-view.js';
 import {SectionSettings} from '../const.js';
 import {remove, render} from '../framework/render.js';
-import {nanoid} from 'nanoid';
+import {addComponentId} from '../utils/common.js';
 
 const ALL_FILM_COUNT_PER_STEP = 5;
-const TOP_RATED_FILM_COUNT_PER_STEP = 2;
-const MOST_COMMENTED_FILM_COUNT_PER_STEP = 2;
 
 export default class BoardPresenter {
   #mainContainer = null;
@@ -22,9 +20,6 @@ export default class BoardPresenter {
   #footerStatisticsElement = null;
   #pageBodyElement = null;
   #sourcedFilms = null;
-  #allFilms = null;
-  #topRatedFilms = null;
-  #mostCommentedFilms = null;
   #filmModel = null;
   #filmPresenter = new Map();
   #renderedAllFilmShowen = ALL_FILM_COUNT_PER_STEP;
@@ -83,10 +78,6 @@ export default class BoardPresenter {
     this.#filmPresenter.set(film.componentId, filmPresenter);
   }
 
-  #renderFilmCards (films, from, to, container) {
-    films.slice(from, to).forEach((film) => this.#renderFilm(film, container));
-  }
-
   #clearFilmCards = () => {
     this.#filmPresenter.forEach((presenter) => presenter.destroy());
     this.#filmPresenter.clear();
@@ -95,66 +86,29 @@ export default class BoardPresenter {
   };
 
   #renderAllFilmCards () {
-    this.#allFilms = this.#sourcedFilms
-      .map((film) => ({
-        ...film,
-        componentId: `${nanoid()}-${film.id}`,
-      }));
+    addComponentId(this.#filmModel.films)
+      .slice(0, Math.min(this.#sourcedFilms.length, ALL_FILM_COUNT_PER_STEP))
+      .forEach((film) => this.#renderFilm(film, this.#allFilmListContainerComponent.element));
 
-    this.#renderFilmCards(
-      this.#allFilms,
-      0,
-      Math.min(this.#sourcedFilms.length, ALL_FILM_COUNT_PER_STEP),
-      this.#allFilmListContainerComponent.element
-    );
-
-    if (this.#sourcedFilms.length > ALL_FILM_COUNT_PER_STEP) {
+    if (this.#filmModel.films.length > ALL_FILM_COUNT_PER_STEP) {
       render(this.#loadMoreButtonComponent, this.#allFilmListComponent.element);
       this.#loadMoreButtonComponent.setClickHandler(this.#handleLoadMoreButtonClick);
     }
   }
 
   #renderTopRatedFilmCards () {
-    this.#topRatedFilms = this.#sourcedFilms
-      .map((film) => ({
-        ...film,
-        componentId: `${nanoid()}-${film.id}`,
-      }))
-      .sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating);
-
-    this.#renderFilmCards(
-      this.#topRatedFilms,
-      0,
-      Math.min(this.#sourcedFilms.length, TOP_RATED_FILM_COUNT_PER_STEP),
-      this.#topRatedFilmListContainerComponent.element
-    );
+    this.#filmModel.topRatedFilms.forEach((film) => this.#renderFilm(film, this.#topRatedFilmListContainerComponent.element));
   }
 
   #renderMostCommentedFilmCards () {
-    this.#mostCommentedFilms = this.#sourcedFilms
-      .map((film) => ({
-        ...film,
-        componentId: `${nanoid()}-${film.id}`,
-      }))
-      .sort((a, b) => b.comments.length - a.comments.length);
-
-    this.#renderFilmCards(
-      this.#mostCommentedFilms,
-      0,
-      Math.min(this.#sourcedFilms.length, MOST_COMMENTED_FILM_COUNT_PER_STEP),
-      this.#mostCommentedFilmListContainerComponent.element
-    );
+    this.#filmModel.mostCommentedFilms.forEach((film) => this.#renderFilm(film, this.#mostCommentedFilmListContainerComponent.element));
   }
 
   #handleLoadMoreButtonClick = () => {
-    this.#renderFilmCards(
-      this.#allFilms,
-      this.#renderedAllFilmShowen,
-      this.#renderedAllFilmShowen + ALL_FILM_COUNT_PER_STEP,
-      this.#allFilmListContainerComponent.element
-    );
+    addComponentId(this.#filmModel.films)
+      .slice(this.#renderedAllFilmShowen, this.#renderedAllFilmShowen += ALL_FILM_COUNT_PER_STEP)
+      .forEach((film) => this.#renderFilm(film, this.#allFilmListContainerComponent.element));
 
-    this.#renderedAllFilmShowen += ALL_FILM_COUNT_PER_STEP;
     if (this.#sourcedFilms.length <= this.#renderedAllFilmShowen) {
       remove(this.#loadMoreButtonComponent);
     }

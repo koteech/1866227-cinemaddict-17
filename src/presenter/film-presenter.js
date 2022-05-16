@@ -1,4 +1,3 @@
-
 import FilmCardView from '../view/film-card-view.js';
 import FilmDetailsView from '../view/film-details-view.js';
 import {render, replace, remove} from '../framework/render.js';
@@ -29,7 +28,7 @@ export default class FilmPresenter {
 
   init(film) {
     this.film = film;
-    this.#comments = [...this.#filmModel.getCommentsByFilm(film.id)];
+    this.#comments = this.#filmModel.getCommentsByFilm(film.id);
 
     const prevFilmCardComponent = this.#filmCardComponent;
     const prevFilmDetailsComponent = this.#filmDetailsComponent;
@@ -37,11 +36,11 @@ export default class FilmPresenter {
     this.#filmCardComponent = new FilmCardView(this.film);
     this.#filmDetailsComponent = new FilmDetailsView(this.film, this.#comments);
 
-    this.#filmCardComponent.setClickHandler(this.#OpenfilmDetails);
+    this.#filmCardComponent.setClickHandler(this.#openfilmDetails);
     this.#filmCardComponent.setWatchListClickHandler(this.#handleWatchListClick);
     this.#filmCardComponent.setWatchedClickHandler(this.#handleWatchedClick);
     this.#filmCardComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
-    this.#filmDetailsComponent.setCloseButtonClickHandler(this.#ClosefilmDetails);
+    this.#filmDetailsComponent.setCloseButtonClickHandler(this.#closefilmDetails);
     this.#filmDetailsComponent.setWatchListClickHandler(this.#handleWatchListClick);
     this.#filmDetailsComponent.setWatchedClickHandler(this.#handleWatchedClick);
     this.#filmDetailsComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
@@ -64,7 +63,7 @@ export default class FilmPresenter {
     remove(this.#filmDetailsComponent);
   };
 
-  #OpenfilmDetails = () => {
+  #openfilmDetails = () => {
     render(this.#filmDetailsComponent, this.#pageBodyElement);
     document.addEventListener('keydown', this.#escKeydownHandler);
     this.#changeMode();
@@ -72,7 +71,7 @@ export default class FilmPresenter {
 
   };
 
-  #ClosefilmDetails = () => {
+  #closefilmDetails = () => {
     this.#mode = Mode.DEFAULT;
     this.#filmDetailsComponent.element.remove();
     document.removeEventListener('keydown', this.#escKeydownHandler);
@@ -82,7 +81,7 @@ export default class FilmPresenter {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
       document.body.classList.remove('hide-overflow');
-      this.#ClosefilmDetails();
+      this.#closefilmDetails();
     }
   };
 
@@ -115,7 +114,7 @@ export default class FilmPresenter {
 
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
-      this.#ClosefilmDetails();
+      this.#closefilmDetails();
     }
   };
 }
