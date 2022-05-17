@@ -86,30 +86,33 @@ export default class FilmPresenter {
   };
 
   #handleWatchListClick = () => {
-    this.#changeData(
-      Object.assign(
-        {},
-        this.film,
-        {
-          userDetails: {
-            ...this.film.userDetails,
-            watchlist: !this.film.userDetails.watchlist,
-          },
-        },
-      ),
-    );
+    this.#changeData({
+      ...this.film,
+      userDetails: {
+        ...this.film.userDetails,
+        watchlist: !this.film.userDetails.watchlist,
+      }
+    });
   };
 
   #handleWatchedClick = () => {
-    const updateFilm = {...this.film};
-    updateFilm.userDetails.alreadyWatched = !updateFilm.userDetails.alreadyWatched;
-    this.#changeData(updateFilm);
+    this.#changeData({
+      ...this.film,
+      userDetails: {
+        ...this.film.userDetails,
+        alreadyWatched: !this.film.userDetails.alreadyWatched,
+      }
+    });
   };
 
   #handleFavoriteClick = () => {
-    const updateFilm = {...this.film};
-    updateFilm.userDetails.favorite = !updateFilm.userDetails.favorite;
-    this.#changeData(updateFilm);
+    this.#changeData({
+      ...this.film,
+      userDetails: {
+        ...this.film.userDetails,
+        favorite: !this.film.userDetails.favorite,
+      }
+    });
   };
 
   resetView = () => {
