@@ -50,12 +50,11 @@ export default class FilmPresenter {
     }
 
     replace(this.#filmCardComponent, prevFilmCardComponent);
-    if (this.#mode === Mode.OPEND) {
-      replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
-    }
-
     remove(prevFilmCardComponent);
-    remove(prevFilmDetailsComponent);
+    if (this.#mode === Mode.OPENED) {
+      replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
+      remove(prevFilmDetailsComponent);
+    }
   }
 
   destroy = () => {
