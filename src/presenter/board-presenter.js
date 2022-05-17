@@ -133,15 +133,12 @@ export default class BoardPresenter {
     switch (sortType) {
       case SortType.BY_DATE:
         this.#films.sort(sortFilmByDate);
-        console.log('Сортировка по дате', this.#films);
         break;
       case SortType.BY_RATING:
         this.#films.sort(sortFilmByRating);
-        console.log('Сортировка по рейтингу', this.#films);
         break;
       default:
         this.#films = [...this.#sourcedFilms];
-        console.log('Сортировка по умолчанию', this.#films);
     }
 
     this.#currentSortType = sortType;
@@ -151,7 +148,7 @@ export default class BoardPresenter {
     if (this.#currentSortType === sortType) {
       return;
     }
-    console.log(sortType);
+
     this.#sortFilms(sortType);
     this.#clearFilmCards();
     this.#renderAllFilmCards();
