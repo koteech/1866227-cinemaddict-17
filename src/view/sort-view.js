@@ -21,7 +21,9 @@ export default class SortView extends AbstractView {
     if (evt.target.tagName !== 'A') {
       return;
     }
-
+    this.element.querySelectorAll('.sort__button').forEach((a) => a.classList.remove('sort__button--active'));
+    //[...this.element.children].forEach((li) => li.firstElementChild.classList.remove('sort__button--active'));
+    evt.target.classList.add('sort__button--active');
     evt.preventDefault();
     this._callback.SortTypeChange(evt.target.dataset.sortType);
   };
