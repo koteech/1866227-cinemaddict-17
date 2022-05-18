@@ -50,12 +50,11 @@ export default class FilmPresenter {
     }
 
     replace(this.#filmCardComponent, prevFilmCardComponent);
-    if (this.#mode === Mode.OPEND) {
-      replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
-    }
-
     remove(prevFilmCardComponent);
-    remove(prevFilmDetailsComponent);
+    if (this.#mode === Mode.OPENED) {
+      replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
+      remove(prevFilmDetailsComponent);
+    }
   }
 
   destroy = () => {
@@ -86,30 +85,33 @@ export default class FilmPresenter {
   };
 
   #handleWatchListClick = () => {
-    this.#changeData(
-      Object.assign(
-        {},
-        this.film,
-        {
-          userDetails: {
-            ...this.film.userDetails,
-            watchlist: !this.film.userDetails.watchlist,
-          },
-        },
-      ),
-    );
+    this.#changeData({
+      ...this.film,
+      userDetails: {
+        ...this.film.userDetails,
+        watchlist: !this.film.userDetails.watchlist,
+      }
+    });
   };
 
   #handleWatchedClick = () => {
-    const updateFilm = {...this.film};
-    updateFilm.userDetails.alreadyWatched = !updateFilm.userDetails.alreadyWatched;
-    this.#changeData(updateFilm);
+    this.#changeData({
+      ...this.film,
+      userDetails: {
+        ...this.film.userDetails,
+        alreadyWatched: !this.film.userDetails.alreadyWatched,
+      }
+    });
   };
 
   #handleFavoriteClick = () => {
-    const updateFilm = {...this.film};
-    updateFilm.userDetails.favorite = !updateFilm.userDetails.favorite;
-    this.#changeData(updateFilm);
+    this.#changeData({
+      ...this.film,
+      userDetails: {
+        ...this.film.userDetails,
+        favorite: !this.film.userDetails.favorite,
+      }
+    });
   };
 
   resetView = () => {
