@@ -7,8 +7,6 @@ const getRandomInteger = (a = 0, b = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-const createDataIds = (size) => Array.from({length: size}, (item, index) => index + 1);
-
 const getRandomArrayElement = (array) => {
   const randomIndex = getRandomInteger(0, array.length - 1);
   return array[randomIndex];
@@ -47,4 +45,4 @@ const getTimeFromMins = (mins) => {
 };
 
 
-export {getRandomInteger, createDataIds, getRandomArrayElement, generateDate, getHumanDate, getTimeFromMins, getDateForComment};
+export {getRandomInteger, getRandomArrayElement, generateDate, getHumanDate, getTimeFromMins, getDateForComment};
