@@ -1,9 +1,12 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import FilmDetailsCommentView from '../view/film-details-comment-view.js';
 import {getHumanDate, getTimeFromMins} from '../utils/utils.js';
 
 const createFilmDetailsTemplate = (film, filmComments) => {
   const commentsTemplate = filmComments.map((comment) => new FilmDetailsCommentView(comment).template).join('');
+  const commentEmojiTemplate = film.commentEmoji ?
+    `<img src="images/emoji/${film.commentEmoji}.png" width="55" height="55" alt="emoji-${film.commentEmoji}}"></img>`
+    : '';
 
   return `<section class="film-details">
   <form class="film-details__inner" action="" method="get">
@@ -85,10 +88,10 @@ const createFilmDetailsTemplate = (film, filmComments) => {
         </ul>
 
         <div class="film-details__new-comment">
-          <div class="film-details__add-emoji-label"></div>
+          <div class="film-details__add-emoji-label">${commentEmojiTemplate}</div>
 
           <label class="film-details__comment-label">
-            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${film.commentText ? film.commentText : ''}</textarea>
           </label>
 
           <div class="film-details__emoji-list">
@@ -121,19 +124,84 @@ const createFilmDetailsTemplate = (film, filmComments) => {
 };
 
 
-export default class FilmDetailsView extends AbstractView {
-  #film = {};
-  #filmComments = [];
+export default class FilmDetailsView extends AbstractStatefulView {
+  #filmComments = null;
+  #commentEmojis = null;
 
   constructor(film, comments) {
     super();
-    this.#film = film;
+    this._state = this.#converFilmToState(film);
     this.#filmComments = comments;
+    this.#setInnerHandlers();
   }
 
   get template() {
-    return createFilmDetailsTemplate(this.#film, this.#filmComments);
+    return createFilmDetailsTemplate(this._state, this.#filmComments);
   }
+
+  #converFilmToState = (film) => ({
+    ...film,
+    commentEmoji: null,
+    commentText: null,
+    scrollTop: null
+  });
+
+  #converStateToFilm = (state) => {
+    const film = {...state};
+
+    delete film.commentEmoji;
+    delete film.commentText;
+    delete film.scrollTop;
+
+    return film;
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.#setOuterHandlers();
+  };
+
+  #restorePosition = () => {
+    this.element.scrollTop = this._state.scrollTop;
+    this.element.querySelector('.film-details__comment-input').scrollTop = this._state.localCommentScrollTop;
+  };
+
+  #localCommentEmojiClickHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      commentEmoji: evt.target.value,
+      scrollTop: this.element.scrollTop
+    });
+    this.element.querySelectorAll('.film-details__emoji-item')
+      .forEach((elem) => {
+        elem.checked = false;
+      });
+    evt.target.checked = true;
+    this.#restorePosition();
+  };
+
+  #localCommentInputHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({
+      commentText: evt.target.value,
+      scrollTop: this.element.scrollTop,
+    });
+    this.#restorePosition();
+  };
+
+  #setInnerHandlers = () => {
+    this.element.querySelectorAll('.film-details__emoji-item')
+      .forEach((element) => element.addEventListener('click', this.#localCommentEmojiClickHandler));
+    this.element.querySelector('.film-details__comment-input')
+      .addEventListener('input', this.#localCommentInputHandler);
+  };
+
+  #setOuterHandlers = () => {
+    this.setCloseButtonClickHandler(this._callback.click);
+    this.setWatchListClickHandler(this._callback.watchListClick);
+    this.setWatchedClickHandler(this._callback.watchedClick);
+    this.setFavoriteClickHandler(this._callback.favoriteClick);
+  };
 
   setCloseButtonClickHandler = (callback) => {
     this._callback.click = callback;
@@ -174,5 +242,11 @@ export default class FilmDetailsView extends AbstractView {
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.favoriteClick();
+  };
+
+  reset = (film) => {
+    this.updateElement(
+      this.#converFilmToState(film)
+    );
   };
 }

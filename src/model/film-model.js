@@ -1,6 +1,5 @@
 import {generateFilms} from '../mock/film.js';
 import {generateComments} from '../mock/comments.js';
-import {addComponentId} from '../utils/common.js';
 
 const FILMS_COUNT = 13;
 const TOTAL_COMMENTS_COUNT = 100;
@@ -30,7 +29,7 @@ export default class FilmModel {
 
   get topRatedFilms () {
     if (!this.#topRatedFilms) {
-      this.#topRatedFilms = addComponentId(this.films)
+      this.#topRatedFilms = this.films
         .sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating)
         .slice(0, Math.min(this.films.length, TOP_RATED_FILM_COUNT_PER_STEP));
     }
@@ -40,7 +39,7 @@ export default class FilmModel {
 
   get mostCommentedFilms () {
     if (!this.#mostCommentedFilms) {
-      this.#mostCommentedFilms = addComponentId(this.films)
+      this.#mostCommentedFilms = this.films
         .sort((a, b) => b.comments.length - a.comments.length)
         .slice(0, Math.min(this.films.length, MOST_COMMENTED_FILM_COUNT_PER_STEP));
     }

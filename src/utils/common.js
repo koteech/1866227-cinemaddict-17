@@ -1,5 +1,3 @@
-import {nanoid} from 'nanoid';
-
 const updateItem = (items, update) => {
   const index = items.find((item) => item.id === update.id);
 
@@ -22,15 +20,8 @@ const getHashCode = (string) => string.split('')
 
 const getCheckedAttribute = (flag) => flag ? 'checked' : '';
 
-const addComponentId = (films) => films
-  .map((film) => ({
-    ...film,
-    componentId: `${nanoid()}-${film.id}`,
-  }));
-
 export {
   updateItem,
   getHashCode,
-  getCheckedAttribute,
-  addComponentId
+  getCheckedAttribute
 };
