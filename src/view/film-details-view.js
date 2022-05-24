@@ -126,7 +126,6 @@ const createFilmDetailsTemplate = (film, filmComments) => {
 
 export default class FilmDetailsView extends AbstractStatefulView {
   #filmComments = null;
-  #commentEmojis = null;
 
   constructor(film, comments) {
     super();
@@ -176,7 +175,7 @@ export default class FilmDetailsView extends AbstractStatefulView {
       .forEach((elem) => {
         elem.checked = false;
       });
-    evt.target.checked = true;
+    this.element.querySelector(`#${evt.target.id}`).checked = true;
     this.#restorePosition();
   };
 
