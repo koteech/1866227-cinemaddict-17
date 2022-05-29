@@ -1,30 +1,19 @@
-import {generateFilms} from '../mock/film.js';
-import {generateComments} from '../mock/comments.js';
+import Observable from '../framework/observable.js';
 
-const FILMS_COUNT = 13;
-const TOTAL_COMMENTS_COUNT = 100;
 const TOP_RATED_FILM_COUNT_PER_STEP = 2;
 const MOST_COMMENTED_FILM_COUNT_PER_STEP = 2;
 
-export default class FilmModel {
-  #comments = null;
+export default class FilmModel extends Observable {
   #films = null;
   #topRatedFilms = null;
   #mostCommentedFilms = null;
 
-  get comments() {
-    if (!this.#comments) {
-      this.#comments = generateComments(TOTAL_COMMENTS_COUNT);
-    }
-    return this.#comments;
+  get films() {
+    return this.#films;
   }
 
-  get films() {
-    if (!this.#films) {
-      this.#films = generateFilms(FILMS_COUNT, this.comments);
-    }
-
-    return this.#films;
+  set films(films) {
+    this.#films = films;
   }
 
   get topRatedFilms () {
@@ -47,9 +36,22 @@ export default class FilmModel {
     return this.#mostCommentedFilms;
   }
 
-  getCommentsByFilm(filmId) {
-    const selectedFilm = this.films.find((film) => film.id === filmId);
-    return this.comments.filter((comment) => selectedFilm.comments.includes(comment.id));
-  }
+  updateFilm = (updateType, update) => {
+    const index = this.#films.findIndex((film) => film.id === update.id);
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting task');
+    }
+
+    this.#films = [
+      ...this.#films.slice(0, index),
+      update,
+      ...this.#films.slice(index + 1),
+    ];
+
+    this.#mostCommentedFilms = null;
+    this.#topRatedFilms = null;
+
+    this._notify(updateType, update);
+  };
 }
 

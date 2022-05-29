@@ -8,7 +8,7 @@ import FooterStatisticsView from '../view/footer-statistics-view.js';
 import FilmNoDataView from '../view/film-no-data-view.js';
 import FilmListContainerView from '../view/film-list-container-view.js';
 import LoadMoreButtonView from '../view/load-more-button-view.js';
-import {SectionSettings, SortType} from '../const.js';
+import {SectionSettings, SortType, UserAction, UpdateType} from '../const.js';
 import {remove, render} from '../framework/render.js';
 import {sortFilmByDate, sortFilmByRating} from '../utils/film.js';
 
@@ -19,12 +19,11 @@ export default class BoardPresenter {
   #profileElement = null;
   #footerStatisticsElement = null;
   #pageBodyElement = null;
-  #sourcedFilms = null;
-  #films = null;
   #filmModel = null;
+  #commentModel = null;
   #filmPresenter = new Map();
-  #currentSortType = null;
   #renderedAllFilmShowen = ALL_FILM_COUNT_PER_STEP;
+  #currentSortType = SortType.DEFAULT;
 
   #sortComponent = new SortView();
   #filmSectionComponent = new FilmSectionView();
@@ -36,30 +35,40 @@ export default class BoardPresenter {
   #mostCommentedFilmListContainerComponent = new FilmListContainerView();
   #loadMoreButtonComponent = new LoadMoreButtonView();
 
-  constructor (mainContainer, profileElement, footerStatisticsElement, pageBodyElement, filmModel) {
+  constructor (mainContainer, profileElement, footerStatisticsElement, pageBodyElement, filmModel, commentModel) {
     this.#mainContainer = mainContainer;
     this.#profileElement = profileElement;
     this.#footerStatisticsElement = footerStatisticsElement;
     this.#pageBodyElement = pageBodyElement;
     this.#filmModel = filmModel;
+    this.#commentModel = commentModel;
+    this.#filmModel.addObserver(this.#handleModelEvent);
   }
 
   init = () => {
-    this.#sourcedFilms = [...this.#filmModel.films];
-    this.#films = this.#filmModel.films;
-    this.#currentSortType = SortType.DEFAULT;
     this.#renderPage();
   };
 
+  get films() {
+    switch (this.#currentSortType) {
+      case SortType.BY_DATE:
+        return [...this.#filmModel.films].sort(sortFilmByDate);
+      case SortType.BY_RATING:
+        return [...this.#filmModel.films].sort(sortFilmByRating);
+    }
+
+    return this.#filmModel.films;
+  }
+
   #renderPage () {
-    render(new ProfileView(this.#filmModel.films), this.#profileElement);
-    render(new FooterStatisticsView(this.#filmModel.films), this.#footerStatisticsElement);
+    render(new ProfileView(this.films), this.#profileElement);
+    render(new FooterStatisticsView(this.films), this.#footerStatisticsElement);
     this.#renderFilterComponent();
     this.#renderSortComponent();
     render(this.#filmSectionComponent, this.#mainContainer);
     render(this.#allFilmListComponent, this.#filmSectionComponent.element);
 
-    if (this.#filmModel.films.length < 1) {
+    if (this.films.length < 1) {
       render(new FilmNoDataView(), this.#allFilmListComponent.element);
       this.#sortComponent.element.remove();
       this.#allFilmListComponent.element.firstElementChild.remove();
@@ -76,7 +85,7 @@ export default class BoardPresenter {
   }
 
   #renderFilm (film, container) {
-    const filmPresenter = new FilmPresenter(container, this.#pageBodyElement, this.#filmModel, this.#changeData, this.#changeMode);
+    const filmPresenter = new FilmPresenter(container, this.#pageBodyElement, this.#filmModel, this.#commentModel, this.#handleViewAction, this.#handleModeChange);
     filmPresenter.init(film);
     if (this.#filmPresenter.has(film.id)) {
       this.#filmPresenter.get(film.id).push(filmPresenter);
@@ -101,11 +110,11 @@ export default class BoardPresenter {
   }
 
   #renderAllFilmCards () {
-    this.#films
-      .slice(0, Math.min(this.#sourcedFilms.length, ALL_FILM_COUNT_PER_STEP))
+    this.films
+      .slice(0, Math.min(this.films.length, ALL_FILM_COUNT_PER_STEP))
       .forEach((film) => this.#renderFilm(film, this.#allFilmListContainerComponent.element));
 
-    if (this.#filmModel.films.length > ALL_FILM_COUNT_PER_STEP) {
+    if (this.films.length > ALL_FILM_COUNT_PER_STEP) {
       render(this.#loadMoreButtonComponent, this.#allFilmListComponent.element);
       this.#loadMoreButtonComponent.setClickHandler(this.#handleLoadMoreButtonClick);
     }
@@ -125,32 +134,17 @@ export default class BoardPresenter {
   }
 
   #renderFilterComponent () {
-    render(new FilterView(this.#filmModel.films), this.#mainContainer);
+    render(new FilterView(this.films), this.#mainContainer);
   }
 
   #handleLoadMoreButtonClick = () => {
-    this.#films
+    this.films
       .slice(this.#renderedAllFilmShowen, this.#renderedAllFilmShowen += ALL_FILM_COUNT_PER_STEP)
       .forEach((film) => this.#renderFilm(film, this.#allFilmListContainerComponent.element));
 
-    if (this.#sourcedFilms.length <= this.#renderedAllFilmShowen) {
+    if (this.films.length <= this.#renderedAllFilmShowen) {
       remove(this.#loadMoreButtonComponent);
     }
-  };
-
-  #sortFilms = (sortType) => {
-    switch (sortType) {
-      case SortType.BY_DATE:
-        this.#films.sort(sortFilmByDate);
-        break;
-      case SortType.BY_RATING:
-        this.#films.sort(sortFilmByRating);
-        break;
-      default:
-        this.#films = [...this.#sourcedFilms];
-    }
-
-    this.#currentSortType = sortType;
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -158,17 +152,35 @@ export default class BoardPresenter {
       return;
     }
 
-    this.#sortFilms(sortType);
+    this.#currentSortType = sortType;
     this.#clearFilmCards();
     this.#renderFilmCards();
   };
 
-  #changeData = (updatedFilm) => {
-    this.#filmPresenter.get(updatedFilm.id)
-      .forEach((presenter) => presenter.init(updatedFilm));
+  #handleViewAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+      case UserAction.DELETE_COMMENT:
+      case UserAction.ADD_COMMENT:
+        this.#filmModel.updateFilm(updateType, update);
+        break;
+    }
   };
 
-  #changeMode = () => {
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.MINOR:
+        this.#filmPresenter.get(data.id)
+          .forEach((presenter) => presenter.init(data));
+        break;
+      // case UpdateType.MAJOR:
+      //   this.#clearFilmCards();
+      //   this.#renderFilmCards();
+      //   break;
+    }
+  };
+
+  #handleModeChange = () => {
     this.#filmPresenter
       .forEach((value) => value
         .forEach((presenter) => presenter.resetView()));
