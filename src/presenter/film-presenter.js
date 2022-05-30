@@ -77,10 +77,12 @@ export default class FilmPresenter {
   };
 
   #openfilmDetails = () => {
-    render(this.#filmDetailsComponent, this.#pageBodyElement);
-    document.addEventListener('keydown', this.#escKeydownHandler);
-    this.#changeMode();
-    this.#mode = Mode.OPENED;
+    if (this.#mode === Mode.DEFAULT) {
+      render(this.#filmDetailsComponent, this.#pageBodyElement);
+      document.addEventListener('keydown', this.#escKeydownHandler);
+      this.#changeMode();
+      this.#mode = Mode.OPENED;
+    }
   };
 
   #closefilmDetails = () => {
