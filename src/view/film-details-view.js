@@ -147,16 +147,6 @@ export default class FilmDetailsView extends AbstractStatefulView {
     scrollTop: null
   });
 
-  // #converStateToFilm = (state) => {
-  //   const film = {...state};
-
-  //   delete film.commentEmoji;
-  //   delete film.commentText;
-  //   delete film.scrollTop;
-
-  //   return film;
-  // };
-
   _restoreHandlers = () => {
     this.#setInnerHandlers();
     this.#setOuterHandlers();

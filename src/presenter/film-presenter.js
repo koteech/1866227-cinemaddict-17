@@ -52,7 +52,7 @@ export default class FilmPresenter {
     this.#filmDetailsComponent.setCommentDeleteClickHandler(this.#handleCommentDeleteClick);
     this.#filmDetailsComponent.setCommentAddHandler(this.#handleCommentAdd);
 
-    if (prevFilmCardComponent === null) {
+    if (prevFilmCardComponent === null && prevFilmDetailsComponent === null) {
       return render(this.#filmCardComponent, this.#filmCountainerElement);
     }
 
@@ -70,6 +70,10 @@ export default class FilmPresenter {
   destroy = () => {
     remove(this.#filmCardComponent);
     remove(this.#filmDetailsComponent);
+  };
+
+  partialDestroy = () => {
+    remove(this.#filmCardComponent);
   };
 
   #openfilmDetails = () => {
@@ -136,7 +140,6 @@ export default class FilmPresenter {
   };
 
   #handleCommentDeleteClick = (commentId) => {
-    console.log(commentId);
     this.#commentModel.deleteComment(
       UpdateType.MINOR,
       commentId
@@ -177,5 +180,7 @@ export default class FilmPresenter {
   #getCommentsByFilm() {
     return this.#commentModel.comments.filter((comment) => this.film.comments.includes(comment.id));
   }
+
+  isOpen = () => this.#mode === Mode.OPENED;
 }
 
