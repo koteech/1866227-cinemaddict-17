@@ -1,30 +1,24 @@
 import BoardPresenter from './presenter/board-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import ProfilePresenter from './presenter/profile-presenter.js';
+import StatisticPresenter from './presenter/statistic-pesenter.js';
 import FilmModel from './model/film-model.js';
 import CommentModel from './model/comment-model.js';
 import FilterModel from './model/filter-model.js';
-import {generateFilms} from './mock/film.js';
-import {generateComments} from './mock/comments.js';
+import Api from './api.js';
 
-const TOTAL_COMMENTS_COUNT = 100;
-const FILMS_COUNT = 25;
+const END_POINT = 'https://17.ecmascript.pages.academy/cinemaddict';
+const AUTHORIZATION = 'Basic qwe123asdgv';
 
 const siteBodyElement = document.querySelector('body');
 const siteHeaderElement = document.querySelector('.header');
 const siteMainElement = document.querySelector('.main');
 const siteFooterStatisticElement = document.querySelector('.footer__statistics');
 
-const filmModel = new FilmModel();
-const commentModel = new CommentModel();
+const api = new Api(END_POINT, AUTHORIZATION);
+const filmModel = new FilmModel(api);
+const commentModel = new CommentModel(api);
 const filterModel = new FilterModel();
-
-const setData = () => {
-  const comments = generateComments(TOTAL_COMMENTS_COUNT);
-  const films = generateFilms(FILMS_COUNT, comments);
-  filmModel.films = films;
-  commentModel.comments = comments;
-};
 
 const profilePresenter = new ProfilePresenter(
   siteHeaderElement,
@@ -39,15 +33,22 @@ const filterPresenter = new FilterPresenter(
 
 const boardPresenter = new BoardPresenter(
   siteMainElement,
-  siteFooterStatisticElement,
   siteBodyElement,
   filmModel,
   commentModel,
   filterModel
 );
 
-setData();
+const statisticPresenter = new StatisticPresenter(
+  siteFooterStatisticElement,
+  filmModel
+);
+
+
 profilePresenter.init();
 filterPresenter.init();
 boardPresenter.init();
+statisticPresenter.init();
+filmModel.init();
+
 

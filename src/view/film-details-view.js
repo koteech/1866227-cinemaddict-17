@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid';
 import {generateDate} from '../utils/utils.js';
 
 const createFilmDetailsTemplate = (state, filmComments) => {
-  const commentsTemplate = filmComments.map((comment) => new FilmDetailsCommentView(comment).template).join('');
+  const commentsTemplate = filmComments.map((comment) => new FilmDetailsCommentView(comment, state.isDeleting).template).join('');
   const commentEmojiTemplate = state.commentEmoji ?
     `<img src="images/emoji/${state.commentEmoji}.png" width="55" height="55" alt="emoji-${state.commentEmoji}}"></img>`
     : '';
@@ -127,7 +127,8 @@ const createFilmDetailsTemplate = (state, filmComments) => {
 
 
 export default class FilmDetailsView extends AbstractStatefulView {
-  #filmComments = null;
+  #filmComments = [];
+  #deleteButton = null;
 
   constructor(film, comments) {
     super();
@@ -144,7 +145,8 @@ export default class FilmDetailsView extends AbstractStatefulView {
     ...film,
     commentEmoji: null,
     commentText: null,
-    scrollTop: null
+    scrollTop: null,
+    isDeleting: false
   });
 
   _restoreHandlers = () => {
@@ -152,7 +154,7 @@ export default class FilmDetailsView extends AbstractStatefulView {
     this.#setOuterHandlers();
   };
 
-  #restorePosition = () => {
+  restorePosition = () => {
     this.element.scrollTop = this._state.scrollTop;
     this.element.querySelector('.film-details__comment-input').scrollTop = this._state.localCommentScrollTop;
   };
@@ -168,7 +170,7 @@ export default class FilmDetailsView extends AbstractStatefulView {
         elem.checked = false;
       });
     this.element.querySelector(`#${evt.target.id}`).checked = true;
-    this.#restorePosition();
+    this.restorePosition();
   };
 
   #localCommentInputHandler = (evt) => {
@@ -177,7 +179,7 @@ export default class FilmDetailsView extends AbstractStatefulView {
       commentText: evt.target.value,
       scrollTop: this.element.scrollTop,
     });
-    this.#restorePosition();
+    this.restorePosition();
   };
 
   #setInnerHandlers = () => {
@@ -244,6 +246,9 @@ export default class FilmDetailsView extends AbstractStatefulView {
 
   #commentDeleteClickHandler = (evt) => {
     evt.preventDefault();
+    this.#deleteButton = evt.target;
+    this.#deleteButton.textContent = 'Deleting...';
+    this.element.querySelectorAll('.film-details__comment-delete').forEach((element) => {element.disabled = true;});
     this._callback.commentDeleteClick(evt.target.closest('.film-details__comment').id);
   };
 

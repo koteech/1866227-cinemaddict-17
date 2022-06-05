@@ -9,7 +9,7 @@ const Mode = {
 };
 
 export default class FilmPresenter {
-  #comments = null;
+  #comments = [];
   #filmCountainerElement = null;
   #filmCardComponent = null;
   #filmDetailsComponent = null;
@@ -33,24 +33,14 @@ export default class FilmPresenter {
 
   init(film) {
     this.film = film;
-    this.#comments = this.#getCommentsByFilm();
-
+    this.#comments = this.#commentModel.comments;
     const prevFilmCardComponent = this.#filmCardComponent;
     const prevFilmDetailsComponent = this.#filmDetailsComponent;
 
     this.#filmCardComponent = new FilmCardView(this.film);
-    this.#filmDetailsComponent = new FilmDetailsView(this.film, this.#comments);
-
-    this.#filmCardComponent.setClickHandler(this.#openfilmDetails);
-    this.#filmCardComponent.setWatchListClickHandler(this.#handleWatchListClick);
-    this.#filmCardComponent.setWatchedClickHandler(this.#handleWatchedClick);
-    this.#filmCardComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
-    this.#filmDetailsComponent.setCloseButtonClickHandler(this.#closefilmDetails);
-    this.#filmDetailsComponent.setWatchListClickHandler(this.#handleWatchListClick);
-    this.#filmDetailsComponent.setWatchedClickHandler(this.#handleWatchedClick);
-    this.#filmDetailsComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
-    this.#filmDetailsComponent.setCommentDeleteClickHandler(this.#handleCommentDeleteClick);
-    this.#filmDetailsComponent.setCommentAddHandler(this.#handleCommentAdd);
+    this.#setFilmHandlers();
+    this.#filmDetailsComponent = new FilmDetailsView(this.film, []);
+    this.#setFilmDetailsHandlers();
 
     if (prevFilmCardComponent === null && prevFilmDetailsComponent === null) {
       return render(this.#filmCardComponent, this.#filmCountainerElement);
@@ -61,9 +51,12 @@ export default class FilmPresenter {
 
     if (this.#mode === Mode.OPENED) {
       this.#scrollTopDetails = prevFilmDetailsComponent.element.scrollTop;
+      this.#filmDetailsComponent = new FilmDetailsView(this.film, this.#comments);
+      this.#setFilmDetailsHandlers();
       replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
       this.#filmDetailsComponent.element.scrollTop = this.#scrollTopDetails;
       remove(prevFilmDetailsComponent);
+      this.#getCommentsAndUpdateDetails();
     }
   }
 
@@ -82,6 +75,7 @@ export default class FilmPresenter {
       document.addEventListener('keydown', this.#escKeydownHandler);
       this.#changeMode();
       this.#mode = Mode.OPENED;
+      this.#getCommentsAndUpdateDetails();
     }
   };
 
@@ -141,20 +135,24 @@ export default class FilmPresenter {
     );
   };
 
-  #handleCommentDeleteClick = (commentId) => {
-    this.#commentModel.deleteComment(
-      UpdateType.MINOR,
-      commentId
-    );
+  #handleCommentDeleteClick = async (commentId) => {
+    try {
+      await this.#commentModel.deleteComment(
+        UpdateType.MINOR,
+        commentId
+      );
 
-    this.#changeData(
-      UserAction.DELETE_COMMENT,
-      UpdateType.MINOR,
-      {
-        ...this.film,
-        comments: this.film.comments.filter((filmCommentId) => filmCommentId !== commentId),
-      }
-    );
+      await this.#changeData(
+        UserAction.DELETE_COMMENT,
+        UpdateType.MINOR,
+        {
+          ...this.film,
+          comments: this.film.comments.filter((filmCommentId) => filmCommentId !== commentId),
+        }
+      );
+    } catch {
+      console.log('Ошибка удаления комментария');
+    }
   };
 
   #handleCommentAdd = (update) => {
@@ -179,10 +177,46 @@ export default class FilmPresenter {
     }
   };
 
-  #getCommentsByFilm() {
-    return this.#commentModel.comments.filter((comment) => this.film.comments.includes(comment.id));
-  }
-
   isOpen = () => this.#mode === Mode.OPENED;
+
+  #setFilmHandlers = () => {
+    this.#filmCardComponent.setClickHandler(this.#openfilmDetails);
+    this.#filmCardComponent.setWatchListClickHandler(this.#handleWatchListClick);
+    this.#filmCardComponent.setWatchedClickHandler(this.#handleWatchedClick);
+    this.#filmCardComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
+  };
+
+  #setFilmDetailsHandlers = () => {
+    this.#filmDetailsComponent.setCloseButtonClickHandler(this.#closefilmDetails);
+    this.#filmDetailsComponent.setWatchListClickHandler(this.#handleWatchListClick);
+    this.#filmDetailsComponent.setWatchedClickHandler(this.#handleWatchedClick);
+    this.#filmDetailsComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
+    this.#filmDetailsComponent.setCommentDeleteClickHandler(this.#handleCommentDeleteClick);
+    this.#filmDetailsComponent.setCommentAddHandler(this.#handleCommentAdd);
+  };
+
+  #getCommentsAndUpdateDetails = async () => {
+    const comments = await this.#commentModel.getCommentsById(this.film.id);
+
+    if (comments.join('') === this.#comments.join('')) {
+      return;
+    }
+
+    const prevFilmDetailsComponent = this.#filmDetailsComponent;
+    this.#filmDetailsComponent = new FilmDetailsView(this.film, comments);
+    this.#setFilmDetailsHandlers();
+    this.#scrollTopDetails = prevFilmDetailsComponent.element.scrollTop;
+    replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
+    this.#filmDetailsComponent.element.scrollTop = this.#scrollTopDetails;
+    remove(prevFilmDetailsComponent);
+  };
+
+  setDeleting = () => {
+    this.#filmDetailsComponent.updateElement({
+      isDeleting: true,
+      scrollTop: this.#filmDetailsComponent.element.scrollTop
+    });
+    this.#filmDetailsComponent.restorePosition();
+  };
 }
 
