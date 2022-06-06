@@ -47,10 +47,14 @@ export default class CommentModel extends Observable {
     }
   };
 
-  addComment = (updateType, update) => {
-    this.#comments.push(update);
-
-    this._notify(updateType, update);
+  addComment = async (filmId, update) => {
+    try {
+      const updatedData = await this.#api.addComment(filmId, update);
+      this.#comments = updatedData.comments;
+      return updatedData.movie;
+    } catch {
+      throw new Error('Can\'t add comment');
+    }
   };
 }
 

@@ -1,8 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import FilmDetailsCommentView from '../view/film-details-comment-view.js';
 import {getHumanDate, getTimeFromMins} from '../utils/utils.js';
-import { nanoid } from 'nanoid';
-import {generateDate} from '../utils/utils.js';
 
 const createFilmDetailsTemplate = (state, filmComments) => {
   const commentsTemplate = filmComments.map((comment) => new FilmDetailsCommentView(comment, state.isDeleting).template).join('');
@@ -260,11 +258,8 @@ export default class FilmDetailsView extends AbstractStatefulView {
   #commentAddHandler = (evt) => {
     if ((evt.ctrlKey || evt.metaKey) && evt.keyCode === 13 && this._state.commentEmoji) {
       this._callback.commentAdd({
-        id: nanoid(),
-        author: 'Marry Jain',
         comment: this._state.commentText,
-        date: generateDate(),
-        emotion: this._state.commentEmoji,
+        emotion: this._state.commentEmoji
       });
     }
   };

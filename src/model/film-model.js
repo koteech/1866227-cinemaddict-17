@@ -68,10 +68,36 @@ export default class FilmModel extends Observable {
         updatedFilm,
         ...this.#films.slice(index + 1),
       ];
+
+      this.#mostCommentedFilms = null;
+      this.#topRatedFilms = null;
+
       this._notify(updateType, updatedFilm);
     } catch {
       throw new Error('Can\'t update film');
     }
+  };
+
+  updateLocalFilm = async (updateType, update) => {
+    const index = this.#films.findIndex((film) => film.id === update.id);
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting film');
+    }
+
+    if (update.user_details) {
+      update = this.#adaptFilmToClient(update);
+    }
+
+    this.#films = [
+      ...this.#films.slice(0, index),
+      update,
+      ...this.#films.slice(index + 1),
+    ];
+
+    this.#mostCommentedFilms = null;
+    this.#topRatedFilms = null;
+
+    this._notify(updateType, update);
   };
 
   #adaptFilmToClient = (film) => {

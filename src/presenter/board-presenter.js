@@ -137,13 +137,10 @@ export default class BoardPresenter {
         this.#filmModel.updateFilm(updateType, update);
         break;
       case UserAction.DELETE_COMMENT:
-        // this.#filmPresenter.get(update.id)
-        //   .filter((presenter) => presenter.isOpen())[0]
-        //   .setDeleting();
-        this.#filmModel.updateFilm(updateType, update);
+        this.#filmModel.updateLocalFilm(updateType, update);
         break;
       case UserAction.ADD_COMMENT:
-        this.#filmModel.updateFilm(updateType, update);
+        this.#filmModel.updateLocalFilm(updateType, update);
         break;
     }
   };

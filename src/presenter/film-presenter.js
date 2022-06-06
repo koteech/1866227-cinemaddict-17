@@ -21,6 +21,7 @@ export default class FilmPresenter {
   #handleViewAction = null;
   #mode = Mode.DEFAULT;
   #scrollTopDetails = null;
+  #updatedFilm = null;
 
   constructor (filmCountainerElement, pageBodyElement, filmModel, commentModel, changeData, changeMode) {
     this.#filmCountainerElement = filmCountainerElement;
@@ -141,33 +142,31 @@ export default class FilmPresenter {
         UpdateType.MINOR,
         commentId
       );
-
-      await this.#changeData(
-        UserAction.DELETE_COMMENT,
-        UpdateType.MINOR,
-        {
-          ...this.film,
-          comments: this.film.comments.filter((filmCommentId) => filmCommentId !== commentId),
-        }
-      );
     } catch {
       console.log('Ошибка удаления комментария');
     }
+
+    this.#changeData(
+      UserAction.DELETE_COMMENT,
+      UpdateType.MINOR,
+      {
+        ...this.film,
+        comments: this.film.comments.filter((filmCommentId) => filmCommentId !== commentId),
+      }
+    );
   };
 
-  #handleCommentAdd = (update) => {
-    this.#commentModel.addComment(
-      UpdateType.MINOR,
-      update
-    );
+  #handleCommentAdd = async (update) => {
+    try {
+      this.#updatedFilm = await this.#commentModel.addComment(this.film.id, update);
+    } catch {
+      console.log('Ошибка добавления камментария');
+    }
 
     this.#changeData(
       UserAction.ADD_COMMENT,
       UpdateType.MINOR,
-      {
-        ...this.film,
-        comments: [...this.film.comments, update.id],
-      }
+      this.#updatedFilm
     );
   };
 
