@@ -1,5 +1,6 @@
 import FilmCardView from '../view/film-card-view.js';
 import FilmDetailsView from '../view/film-details-view.js';
+import FilmDetailsContainerView from '../view/film-details-container-view.js';
 import {render, replace, remove} from '../framework/render.js';
 import {UserAction, UpdateType} from '../const.js';
 
@@ -13,6 +14,7 @@ export default class FilmPresenter {
   #filmCountainerElement = null;
   #filmCardComponent = null;
   #filmDetailsComponent = null;
+  #filmDetailsContainerComponent = null;
   #pageBodyElement = null;
   #filmModel = null;
   #commentModel = null;
@@ -22,6 +24,8 @@ export default class FilmPresenter {
   #mode = Mode.DEFAULT;
   #scrollTopDetails = null;
   #updatedFilm = null;
+  #prevFilmCardComponent = null;
+  #prevFilmDetailsComponent = null;
 
   constructor (filmCountainerElement, pageBodyElement, filmModel, commentModel, changeData, changeMode) {
     this.#filmCountainerElement = filmCountainerElement;
@@ -35,29 +39,24 @@ export default class FilmPresenter {
   init(film) {
     this.film = film;
     this.#comments = this.#commentModel.comments;
-    const prevFilmCardComponent = this.#filmCardComponent;
-    const prevFilmDetailsComponent = this.#filmDetailsComponent;
+    this.#prevFilmCardComponent = this.#filmCardComponent;
+    this.#prevFilmDetailsComponent = this.#filmDetailsComponent;
 
     this.#filmCardComponent = new FilmCardView(this.film);
     this.#setFilmHandlers();
     this.#filmDetailsComponent = new FilmDetailsView(this.film, []);
     this.#setFilmDetailsHandlers();
+    this.#filmDetailsContainerComponent = new FilmDetailsContainerView();
 
-    if (prevFilmCardComponent === null && prevFilmDetailsComponent === null) {
+    if (this.#prevFilmCardComponent === null && this.#prevFilmDetailsComponent === null) {
       return render(this.#filmCardComponent, this.#filmCountainerElement);
     }
 
-    replace(this.#filmCardComponent, prevFilmCardComponent);
-    remove(prevFilmCardComponent);
+    replace(this.#filmCardComponent, this.#prevFilmCardComponent);
+    remove(this.#prevFilmCardComponent);
 
     if (this.#mode === Mode.OPENED) {
-      this.#scrollTopDetails = prevFilmDetailsComponent.element.scrollTop;
-      this.#filmDetailsComponent = new FilmDetailsView(this.film, this.#comments);
-      this.#setFilmDetailsHandlers();
-      replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
-      this.#filmDetailsComponent.element.scrollTop = this.#scrollTopDetails;
-      remove(prevFilmDetailsComponent);
-      this.#getCommentsAndUpdateDetails();
+      this.#replaceFilmDetailsComponent(this.#comments);
     }
   }
 
@@ -72,7 +71,8 @@ export default class FilmPresenter {
 
   #openfilmDetails = () => {
     if (this.#mode === Mode.DEFAULT) {
-      render(this.#filmDetailsComponent, this.#pageBodyElement);
+      render(this.#filmDetailsContainerComponent, this.#pageBodyElement);
+      render(this.#filmDetailsComponent, this.#filmDetailsContainerComponent.element);
       document.addEventListener('keydown', this.#escKeydownHandler);
       this.#changeMode();
       this.#mode = Mode.OPENED;
@@ -84,6 +84,7 @@ export default class FilmPresenter {
     this.#mode = Mode.DEFAULT;
     this.#filmDetailsComponent.reset(this.film);
     this.#filmDetailsComponent.element.remove();
+    this.#filmDetailsContainerComponent.element.remove();
     document.removeEventListener('keydown', this.#escKeydownHandler);
   };
 
@@ -142,32 +143,32 @@ export default class FilmPresenter {
         UpdateType.MINOR,
         commentId
       );
-    } catch {
-      console.log('Ошибка удаления комментария');
-    }
 
-    this.#changeData(
-      UserAction.DELETE_COMMENT,
-      UpdateType.MINOR,
-      {
-        ...this.film,
-        comments: this.film.comments.filter((filmCommentId) => filmCommentId !== commentId),
-      }
-    );
+      this.#changeData(
+        UserAction.DELETE_COMMENT,
+        UpdateType.MINOR,
+        {
+          ...this.film,
+          comments: this.film.comments.filter((filmCommentId) => filmCommentId !== commentId),
+        }
+      );
+    } catch {
+      this.#rollBackChanges();
+    }
   };
 
   #handleCommentAdd = async (update) => {
     try {
       this.#updatedFilm = await this.#commentModel.addComment(this.film.id, update);
-    } catch {
-      console.log('Ошибка добавления камментария');
-    }
 
-    this.#changeData(
-      UserAction.ADD_COMMENT,
-      UpdateType.MINOR,
-      this.#updatedFilm
-    );
+      this.#changeData(
+        UserAction.ADD_COMMENT,
+        UpdateType.MINOR,
+        this.#updatedFilm
+      );
+    } catch {
+      this.#rollBackChanges();
+    }
   };
 
   resetView = () => {
@@ -196,26 +197,30 @@ export default class FilmPresenter {
 
   #getCommentsAndUpdateDetails = async () => {
     const comments = await this.#commentModel.getCommentsById(this.film.id);
-
-    if (comments.join('') === this.#comments.join('')) {
-      return;
-    }
-
-    const prevFilmDetailsComponent = this.#filmDetailsComponent;
-    this.#filmDetailsComponent = new FilmDetailsView(this.film, comments);
-    this.#setFilmDetailsHandlers();
-    this.#scrollTopDetails = prevFilmDetailsComponent.element.scrollTop;
-    replace(this.#filmDetailsComponent, prevFilmDetailsComponent);
-    this.#filmDetailsComponent.element.scrollTop = this.#scrollTopDetails;
-    remove(prevFilmDetailsComponent);
+    this.#prevFilmDetailsComponent = this.#filmDetailsComponent;
+    this.#replaceFilmDetailsComponent(comments);
   };
 
-  setDeleting = () => {
-    this.#filmDetailsComponent.updateElement({
-      isDeleting: true,
-      scrollTop: this.#filmDetailsComponent.element.scrollTop
-    });
-    this.#filmDetailsComponent.restorePosition();
+  #replaceFilmDetailsComponent = (comments) => {
+    this.#scrollTopDetails = this.#prevFilmDetailsComponent.element.scrollTop;
+    this.#filmDetailsComponent = new FilmDetailsView(this.film, comments);
+    this.#setFilmDetailsHandlers();
+    replace(this.#filmDetailsComponent, this.#prevFilmDetailsComponent);
+    this.#filmDetailsComponent.element.scrollTop = this.#scrollTopDetails;
+    remove(this.#prevFilmDetailsComponent);
+  };
+
+  #rollBackChanges = () => {
+    if (this.isOpen) {
+      const resetFilmDetails = () => {
+        this.#filmDetailsComponent.updateElement({
+          isCommentDeleting: false,
+          isCommentAdding: false
+        });
+      };
+
+      this.#filmDetailsComponent.shake(resetFilmDetails);
+    }
   };
 }
 

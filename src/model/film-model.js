@@ -30,10 +30,6 @@ export default class FilmModel extends Observable {
     return this.#films;
   }
 
-  set films(films) {
-    this.#films = films;
-  }
-
   get topRatedFilms () {
     if (!this.#topRatedFilms) {
       this.#topRatedFilms = [...this.films]
@@ -55,35 +51,23 @@ export default class FilmModel extends Observable {
   }
 
   updateFilm = async (updateType, update) => {
-    const index = this.#films.findIndex((film) => film.id === update.id);
-    if (index === -1) {
-      throw new Error('Can\'t update unexisting film');
-    }
+    const index = this.#checkFilmExisting(update);
 
     try {
       const response = await this.#api.updateFilm(update);
       const updatedFilm = this.#adaptFilmToClient(response);
-      this.#films = [
-        ...this.#films.slice(0, index),
-        updatedFilm,
-        ...this.#films.slice(index + 1),
-      ];
-
-      this.#mostCommentedFilms = null;
-      this.#topRatedFilms = null;
-
-      this._notify(updateType, updatedFilm);
+      this.#setLocalFilmAndNotify(index, updateType, updatedFilm);
     } catch {
       throw new Error('Can\'t update film');
     }
   };
 
   updateLocalFilm = async (updateType, update) => {
-    const index = this.#films.findIndex((film) => film.id === update.id);
-    if (index === -1) {
-      throw new Error('Can\'t update unexisting film');
-    }
+    const index = this.#checkFilmExisting(update);
+    this.#setLocalFilmAndNotify(index, updateType, update);
+  };
 
+  #setLocalFilmAndNotify = (index, updateType, update) => {
     if (update.user_details) {
       update = this.#adaptFilmToClient(update);
     }
@@ -99,6 +83,15 @@ export default class FilmModel extends Observable {
 
     this._notify(updateType, update);
   };
+
+  #checkFilmExisting = (update) => {
+    const index = this.#films.findIndex((film) => film.id === update.id);
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting film');
+    }
+    return index;
+  };
+
 
   #adaptFilmToClient = (film) => {
     const adaptedFilm = {

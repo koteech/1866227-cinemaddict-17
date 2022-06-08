@@ -131,14 +131,16 @@ export default class BoardPresenter {
     this.#renderBoard();
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_FILM:
-        this.#filmModel.updateFilm(updateType, update);
+        try {
+          await this.#filmModel.updateFilm(updateType, update);
+        } catch {
+          console.log('Can\'t update film');
+        }
         break;
       case UserAction.DELETE_COMMENT:
-        this.#filmModel.updateLocalFilm(updateType, update);
-        break;
       case UserAction.ADD_COMMENT:
         this.#filmModel.updateLocalFilm(updateType, update);
         break;
