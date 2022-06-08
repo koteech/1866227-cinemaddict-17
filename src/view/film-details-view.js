@@ -153,7 +153,6 @@ export default class FilmDetailsView extends AbstractStatefulView {
 
   restorePosition = () => {
     this.element.scrollTop = this._state.scrollTop;
-    this.element.querySelector('.film-details__comment-input').scrollTop = this._state.localCommentScrollTop;
   };
 
   #localCommentEmojiClickHandler = (evt) => {

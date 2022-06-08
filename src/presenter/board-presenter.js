@@ -208,11 +208,6 @@ export default class BoardPresenter {
       remove(this.#noFilmComponent);
     }
 
-    if (this.#prevAllFilmsCount > this.#renderedAllFilms) {
-      this.#renderedAllFilms = this.#prevAllFilmsCount;
-    }
-    this.#prevAllFilmsCount = this.#renderedAllFilms;
-
     if (resetRenderedAllFilms) {
       this.#renderedAllFilms = ALL_FILM_COUNT_PER_STEP;
     } else {
@@ -261,11 +256,11 @@ export default class BoardPresenter {
       return;
     }
 
-    render(this.#mostCommentedFilmListComponent, this.#filmSectionComponent.element);
-    render(this.#topRatedFilmListComponent, this.#filmSectionComponent.element);
     render(this.#allFilmListContainerComponent, this.#allFilmListComponent.element);
-    render(this.#topRatedFilmListContainerComponent, this.#topRatedFilmListComponent.element);
+    render(this.#mostCommentedFilmListComponent, this.#filmSectionComponent.element);
     render(this.#mostCommentedFilmListContainerComponent, this.#mostCommentedFilmListComponent.element);
+    render(this.#topRatedFilmListComponent, this.#filmSectionComponent.element);
+    render(this.#topRatedFilmListContainerComponent, this.#topRatedFilmListComponent.element);
 
     this.#updateOpenFilmPresenter();
     this.#renderFilmCards();
