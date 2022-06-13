@@ -72,9 +72,9 @@ const createFilmDetailsTemplate = (state, filmComments) => {
       </div>
 
       <section class="film-details__controls">
-        <button type="button" class="film-details__control-button film-details__control-button--watchlist ${state.userDetails.watchlist ? 'film-details__control-button--active' : ''}" id="watchlist" name="watchlist">Add to watchlist</button>
-        <button type="button" class="film-details__control-button film-details__control-button--watched ${state.userDetails.alreadyWatched ? 'film-details__control-button--active' : ''}" id="watched" name="watched">Already watched</button>
-        <button type="button" class="film-details__control-button film-details__control-button--favorite ${state.userDetails.favorite ? 'film-details__control-button--active' : ''}" id="favorite" name="favorite">Add to favorites</button>
+        <button type="button" class="film-details__control-button film-details__control-button--watchlist ${state.userDetails.watchlist ? 'film-details__control-button--active' : ''}" id="watchlist" name="watchlist"${state.isFilmUpdating ? ' disabled' : ''}>Add to watchlist</button>
+        <button type="button" class="film-details__control-button film-details__control-button--watched ${state.userDetails.alreadyWatched ? 'film-details__control-button--active' : ''}" id="watched" name="watched"${state.isFilmUpdating ? ' disabled' : ''}>Already watched</button>
+        <button type="button" class="film-details__control-button film-details__control-button--favorite ${state.userDetails.favorite ? 'film-details__control-button--active' : ''}" id="favorite" name="favorite"${state.isFilmUpdating ? ' disabled' : ''}>Add to favorites</button>
       </section>
     </div>
 
@@ -129,7 +129,7 @@ export default class FilmDetailsView extends AbstractStatefulView {
   constructor(film, comments) {
     super();
     this.#filmComments = comments;
-    this._state = this.#converFilmToState(film);
+    this._state = this.#convertFilmToState(film);
     this.#setInnerHandlers();
   }
 
@@ -137,13 +137,14 @@ export default class FilmDetailsView extends AbstractStatefulView {
     return createFilmDetailsTemplate(this._state, this.#filmComments);
   }
 
-  #converFilmToState = (film) => ({
+  #convertFilmToState = (film) => ({
     ...film,
     commentEmoji: null,
     commentText: null,
     scrollTop: null,
     isCommentDeleting: false,
-    isCommentAdding: false
+    isCommentAdding: false,
+    isFilmUpdating: false
   });
 
   _restoreHandlers = () => {
@@ -212,6 +213,10 @@ export default class FilmDetailsView extends AbstractStatefulView {
 
   #watchListClickHandler = (evt) => {
     evt.preventDefault();
+    this.updateElement({
+      scrollTop: this.element.scrollTop,
+      isFilmUpdating: true,
+    });
     this._callback.watchListClick();
   };
 
@@ -222,6 +227,10 @@ export default class FilmDetailsView extends AbstractStatefulView {
 
   #watchedClickHandler = (evt) => {
     evt.preventDefault();
+    this.updateElement({
+      scrollTop: this.element.scrollTop,
+      isFilmUpdating: true,
+    });
     this._callback.watchedClick();
   };
 
@@ -232,6 +241,10 @@ export default class FilmDetailsView extends AbstractStatefulView {
 
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
+    this.updateElement({
+      scrollTop: this.element.scrollTop,
+      isFilmUpdating: true,
+    });
     this._callback.favoriteClick();
   };
 
@@ -271,7 +284,7 @@ export default class FilmDetailsView extends AbstractStatefulView {
 
   reset = (film) => {
     this.updateElement(
-      this.#converFilmToState(film)
+      this.#convertFilmToState(film)
     );
   };
 }
