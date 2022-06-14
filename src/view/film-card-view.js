@@ -1,38 +1,49 @@
 import dayjs from 'dayjs';
 import {getTimeFromMins} from '../utils/utils.js';
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
-const createBoardTemplate = (film) => `<article class="film-card" id=${film.id}>
+const createBoardTemplate = (state) => `<article class="film-card" id=${state.id}>
 <a class="film-card__link">
-  <h3 class="film-card__title">${film.filmInfo.title}</h3>
-  <p class="film-card__rating">${film.filmInfo.totalRating}</p>
+  <h3 class="film-card__title">${state.filmInfo.title}</h3>
+  <p class="film-card__rating">${state.filmInfo.totalRating}</p>
   <p class="film-card__info">
-    <span class="film-card__year">${dayjs(film.filmInfo.release.date).year()}</span>
-    <span class="film-card__duration">${getTimeFromMins(film.filmInfo.runtime)}</span>
-    <span class="film-card__genre">${film.filmInfo.genre[0]}</span>
+    <span class="film-card__year">${dayjs(state.filmInfo.release.date).year()}</span>
+    <span class="film-card__duration">${getTimeFromMins(state.filmInfo.runtime)}</span>
+    <span class="film-card__genre">${state.filmInfo.genre[0]}</span>
   </p>
-  <img src="${film.filmInfo.poster}" alt="" class="film-card__poster">
-  <p class="film-card__description">${film.filmInfo.description.length > 140? `${film.filmInfo.description.slice(0,139)  }...` : film.filmInfo.description}</p>
-  <span class="film-card__comments">${film.comments.length} ${film.comments.length === 1? 'comment' : 'comments'}</span>
+  <img src="${state.filmInfo.poster}" alt="" class="film-card__poster">
+  <p class="film-card__description">${state.filmInfo.description.length > 140? `${state.filmInfo.description.slice(0,139)  }...` : state.filmInfo.description}</p>
+  <span class="film-card__comments">${state.comments.length} ${state.comments.length === 1? 'comment' : 'comments'}</span>
 </a>
 <div class="film-card__controls">
-  <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${film.userDetails.watchlist ? 'film-card__controls-item--active' : ''}" type="button">Add to watchlist</button>
-  <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${film.userDetails.alreadyWatched ? 'film-card__controls-item--active' : ''}" type="button">Mark as watched</button>
-  <button class="film-card__controls-item film-card__controls-item--favorite ${film.userDetails.favorite ? 'film-card__controls-item--active' : ''}" type="button">Mark as favorite</button>
+  <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${state.userDetails.watchlist ? 'film-card__controls-item--active' : ''}" type="button"${state.isFilmUpdating ? ' disabled' : ''}>Add to watchlist</button>
+  <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${state.userDetails.alreadyWatched ? 'film-card__controls-item--active' : ''}" type="button"${state.isFilmUpdating ? ' disabled' : ''}>Mark as watched</button>
+  <button class="film-card__controls-item film-card__controls-item--favorite ${state.userDetails.favorite ? 'film-card__controls-item--active' : ''}" type="button"${state.isFilmUpdating ? ' disabled' : ''}>Mark as favorite</button>
 </div>
 </article>`;
 
-export default class FilmCardView extends AbstractView {
-  #film = {};
+export default class FilmCardView extends AbstractStatefulView {
 
   constructor(film) {
     super();
-    this.#film = film;
+    this._state = this.#convertFilmToState(film);
   }
 
   get template() {
-    return createBoardTemplate(this.#film);
+    return createBoardTemplate(this._state);
   }
+
+  #convertFilmToState = (film) => ({
+    ...film,
+    isFilmUpdating: false
+  });
+
+  _restoreHandlers = () => {
+    this.setClickHandler(this._callback.click);
+    this.setWatchListClickHandler(this._callback.watchListClick);
+    this.setWatchedClickHandler(this._callback.watchedClick);
+    this.setFavoriteClickHandler(this._callback.favoriteClick);
+  };
 
   setClickHandler = (callback) => {
     this._callback.click = callback;
@@ -52,6 +63,9 @@ export default class FilmCardView extends AbstractView {
 
   #watchListClickHandler = (evt) => {
     evt.preventDefault();
+    this.updateElement({
+      isFilmUpdating: true,
+    });
     this._callback.watchListClick();
   };
 
@@ -62,6 +76,9 @@ export default class FilmCardView extends AbstractView {
 
   #watchedClickHandler = (evt) => {
     evt.preventDefault();
+    this.updateElement({
+      isFilmUpdating: true
+    });
     this._callback.watchedClick();
   };
 
@@ -72,6 +89,9 @@ export default class FilmCardView extends AbstractView {
 
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
+    this.updateElement({
+      isFilmUpdating: true,
+    });
     this._callback.favoriteClick();
   };
 }

@@ -52,10 +52,12 @@ export default class FilmPresenter {
       return render(this.#filmCardComponent, this.#filmCountainerElement);
     }
 
-    replace(this.#filmCardComponent, this.#prevFilmCardComponent);
-    remove(this.#prevFilmCardComponent);
+    if (!this.isOpen()) {
+      replace(this.#filmCardComponent, this.#prevFilmCardComponent);
+      remove(this.#prevFilmCardComponent);
+    }
 
-    if (this.#mode === Mode.OPENED) {
+    if (this.isOpen()) {
       this.#replaceFilmDetailsComponent(this.#comments);
     }
   }
@@ -96,45 +98,57 @@ export default class FilmPresenter {
     }
   };
 
-  #handleWatchListClick = () => {
-    this.#changeData(
-      UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
-      {
-        ...this.film,
-        userDetails: {
-          ...this.film.userDetails,
-          watchlist: !this.film.userDetails.watchlist,
+  #handleWatchListClick = async () => {
+    try {
+      await this.#changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        {
+          ...this.film,
+          userDetails: {
+            ...this.film.userDetails,
+            watchlist: !this.film.userDetails.watchlist,
+          }
         }
-      }
-    );
+      );
+    } catch {
+      this.#rollBackChanges();
+    }
   };
 
-  #handleWatchedClick = () => {
-    this.#changeData(
-      UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
-      {...this.film,
-        userDetails: {
-          ...this.film.userDetails,
-          alreadyWatched: !this.film.userDetails.alreadyWatched,
+  #handleWatchedClick = async () => {
+    try {
+      await this.#changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        {...this.film,
+          userDetails: {
+            ...this.film.userDetails,
+            alreadyWatched: !this.film.userDetails.alreadyWatched,
+          }
         }
-      }
-    );
+      );
+    } catch {
+      this.#rollBackChanges();
+    }
   };
 
-  #handleFavoriteClick = () => {
-    this.#changeData(
-      UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
-      {
-        ...this.film,
-        userDetails: {
-          ...this.film.userDetails,
-          favorite: !this.film.userDetails.favorite,
+  #handleFavoriteClick = async() => {
+    try {
+      await this.#changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        {
+          ...this.film,
+          userDetails: {
+            ...this.film.userDetails,
+            favorite: !this.film.userDetails.favorite,
+          }
         }
-      }
-    );
+      );
+    } catch {
+      this.#rollBackChanges();
+    }
   };
 
   #handleCommentDeleteClick = async (commentId) => {
@@ -211,16 +225,25 @@ export default class FilmPresenter {
   };
 
   #rollBackChanges = () => {
-    if (this.isOpen) {
+    if (this.isOpen()) {
       const resetFilmDetails = () => {
         this.#filmDetailsComponent.updateElement({
           isCommentDeleting: false,
-          isCommentAdding: false
+          isCommentAdding: false,
+          isFilmUpdating: false
         });
       };
 
       this.#filmDetailsComponent.shake(resetFilmDetails);
+      return true;
     }
+
+    const resetFilm = () => {
+      this.#filmCardComponent.updateElement({
+        isFilmUpdating: false
+      });
+    };
+    this.#filmCardComponent.shake(resetFilm);
   };
 }
 

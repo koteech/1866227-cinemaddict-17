@@ -92,11 +92,25 @@ export default class BoardPresenter {
   }
 
   #renderTopRatedFilmCards () {
-    this.#filmModel.topRatedFilms.forEach((film) => this.#renderFilm(film, this.#topRatedFilmListContainerComponent.element));
+    const totalFilmRate = this.#filmModel.topRatedFilms
+      .map((film) => parseFloat(film.filmInfo.totalRating))
+      .reduce((a, b) => a + b);
+    if (totalFilmRate > 0) {
+      render(this.#topRatedFilmListComponent, this.#filmSectionComponent.element);
+      render(this.#topRatedFilmListContainerComponent, this.#topRatedFilmListComponent.element);
+      this.#filmModel.topRatedFilms.forEach((film) => this.#renderFilm(film, this.#topRatedFilmListContainerComponent.element));
+    }
   }
 
   #renderMostCommentedFilmCards () {
-    this.#filmModel.mostCommentedFilms.forEach((film) => this.#renderFilm(film, this.#mostCommentedFilmListContainerComponent.element));
+    const commentsCount = this.#filmModel.mostCommentedFilms
+      .map((film) => film.comments.length)
+      .reduce((a, b) => a + b);
+    if (commentsCount > 0) {
+      render(this.#mostCommentedFilmListComponent, this.#filmSectionComponent.element);
+      render(this.#mostCommentedFilmListContainerComponent, this.#mostCommentedFilmListComponent.element);
+      this.#filmModel.mostCommentedFilms.forEach((film) => this.#renderFilm(film, this.#mostCommentedFilmListContainerComponent.element));
+    }
   }
 
   #renderSortComponent () {
@@ -135,8 +149,8 @@ export default class BoardPresenter {
       case UserAction.UPDATE_FILM:
         try {
           await this.#filmModel.updateFilm(updateType, update);
-        } catch {
-          console.log('Can\'t update film');
+        } catch (error) {
+          throw error.message;
         }
         break;
       case UserAction.DELETE_COMMENT:
@@ -256,11 +270,6 @@ export default class BoardPresenter {
     }
 
     render(this.#allFilmListContainerComponent, this.#allFilmListComponent.element);
-    render(this.#mostCommentedFilmListComponent, this.#filmSectionComponent.element);
-    render(this.#mostCommentedFilmListContainerComponent, this.#mostCommentedFilmListComponent.element);
-    render(this.#topRatedFilmListComponent, this.#filmSectionComponent.element);
-    render(this.#topRatedFilmListContainerComponent, this.#topRatedFilmListComponent.element);
-
     this.#updateOpenFilmPresenter();
     this.#renderFilmCards();
 
