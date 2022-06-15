@@ -92,10 +92,9 @@ export default class BoardPresenter {
   }
 
   #renderTopRatedFilmCards () {
-    const totalFilmRate = this.#filmModel.topRatedFilms
-      .map((film) => parseFloat(film.filmInfo.totalRating))
-      .reduce((a, b) => a + b);
-    if (totalFilmRate > 0) {
+    const isFilmRateExist = this.#filmModel.topRatedFilms
+      .some((film) => parseFloat(film.filmInfo.totalRating) > 0);
+    if (isFilmRateExist) {
       render(this.#topRatedFilmListComponent, this.#filmSectionComponent.element);
       render(this.#topRatedFilmListContainerComponent, this.#topRatedFilmListComponent.element);
       this.#filmModel.topRatedFilms.forEach((film) => this.#renderFilm(film, this.#topRatedFilmListContainerComponent.element));
@@ -103,10 +102,9 @@ export default class BoardPresenter {
   }
 
   #renderMostCommentedFilmCards () {
-    const commentsCount = this.#filmModel.mostCommentedFilms
-      .map((film) => film.comments.length)
-      .reduce((a, b) => a + b);
-    if (commentsCount > 0) {
+    const isFilmCommentExist = this.#filmModel.mostCommentedFilms
+      .some((film) => film.comments.length > 0);
+    if (isFilmCommentExist) {
       render(this.#mostCommentedFilmListComponent, this.#filmSectionComponent.element);
       render(this.#mostCommentedFilmListContainerComponent, this.#mostCommentedFilmListComponent.element);
       this.#filmModel.mostCommentedFilms.forEach((film) => this.#renderFilm(film, this.#mostCommentedFilmListContainerComponent.element));
