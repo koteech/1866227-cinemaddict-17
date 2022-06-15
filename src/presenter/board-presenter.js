@@ -145,11 +145,7 @@ export default class BoardPresenter {
   #handleViewAction = async (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_FILM:
-        try {
-          await this.#filmModel.updateFilm(updateType, update);
-        } catch (error) {
-          throw error.message;
-        }
+        await this.#filmModel.updateFilm(updateType, update);
         break;
       case UserAction.DELETE_COMMENT:
       case UserAction.ADD_COMMENT:

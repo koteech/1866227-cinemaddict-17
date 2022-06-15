@@ -57,8 +57,8 @@ export default class FilmModel extends Observable {
       const response = await this.#api.updateFilm(update);
       const updatedFilm = this.#adaptFilmToClient(response);
       this.#setLocalFilmAndNotify(index, updateType, updatedFilm);
-    } catch {
-      throw new Error('Can\'t update film');
+    } catch(error) {
+      throw new Error(error.message);
     }
   };
 
