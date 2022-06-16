@@ -14,9 +14,9 @@ export default class CommentModel extends Observable {
     try {
       const comments = await this.#api.getComments(filmId);
       this.#comments = comments;
-    } catch {
+    } catch(error) {
       this.#comments = [];
-      throw new Error('Can\'t get comments by film ID');
+      throw new Error(error.message);
     }
 
     return this.#comments;
@@ -42,8 +42,8 @@ export default class CommentModel extends Observable {
         ...this.#comments.slice(0, index),
         ...this.#comments.slice(index + 1),
       ];
-    } catch {
-      throw new Error('Can\'t detele comment');
+    } catch(error) {
+      throw new Error(error.message);
     }
   };
 
@@ -52,8 +52,8 @@ export default class CommentModel extends Observable {
       const updatedData = await this.#api.addComment(filmId, update);
       this.#comments = updatedData.comments;
       return updatedData.movie;
-    } catch {
-      throw new Error('Can\'t add comment');
+    } catch(error) {
+      throw new Error(error.message);
     }
   };
 }
