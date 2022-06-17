@@ -124,7 +124,6 @@ const createFilmDetailsTemplate = (state, filmComments) => {
 
 export default class FilmDetailsView extends AbstractStatefulView {
   #filmComments = [];
-  #deleteButton = null;
 
   constructor(film, comments) {
     super();

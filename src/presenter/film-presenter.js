@@ -16,21 +16,18 @@ export default class FilmPresenter {
   #filmDetailsComponent = null;
   #filmDetailsContainerComponent = null;
   #pageBodyElement = null;
-  #filmModel = null;
   #commentModel = null;
   #changeData = null;
   #changeMode = null;
-  #handleViewAction = null;
   #mode = Mode.DEFAULT;
   #scrollTopDetails = null;
   #updatedFilm = null;
   #prevFilmCardComponent = null;
   #prevFilmDetailsComponent = null;
 
-  constructor (filmCountainerElement, pageBodyElement, filmModel, commentModel, changeData, changeMode) {
+  constructor (filmCountainerElement, pageBodyElement, commentModel, changeData, changeMode) {
     this.#filmCountainerElement = filmCountainerElement;
     this.#pageBodyElement = pageBodyElement;
-    this.#filmModel = filmModel;
     this.#commentModel = commentModel;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
