@@ -15,7 +15,6 @@ const ALL_FILM_COUNT_PER_STEP = 5;
 
 export default class BoardPresenter {
   #mainContainer = null;
-  #footerStatisticsElement = null;
   #pageBodyElement = null;
   #filmModel = null;
   #commentModel = null;
@@ -25,7 +24,6 @@ export default class BoardPresenter {
   #renderedAllFilms = ALL_FILM_COUNT_PER_STEP;
   #currentSortType = SortType.DEFAULT;
   #pagePosition = null;
-  #prevAllFilmsCount = null;
   #isLoading = true;
 
   #loadingComponent = new LoadingView();
@@ -70,7 +68,7 @@ export default class BoardPresenter {
   }
 
   #renderFilm (film, container) {
-    const filmPresenter = new FilmPresenter(container, this.#pageBodyElement, this.#filmModel, this.#commentModel, this.#handleViewAction, this.#handleModeChange);
+    const filmPresenter = new FilmPresenter(container, this.#pageBodyElement, this.#commentModel, this.#handleViewAction, this.#handleModeChange);
     filmPresenter.init(film);
     if (this.#filmPresenter.has(film.id)) {
       this.#filmPresenter.get(film.id).push(filmPresenter);
