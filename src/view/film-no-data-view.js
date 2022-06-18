@@ -8,9 +8,9 @@ const createFilmNoDataTemplate = (noDataText) => (
 export default class FilmNoDataView extends AbstractView {
   #noDataText = null;
 
-  constructor (filter) {
+  constructor (filmFilter) {
     super();
-    this.#noDataText = NoDataText[filter];
+    this.#noDataText = NoDataText[filmFilter];
   }
 
   get template() {
