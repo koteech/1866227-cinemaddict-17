@@ -53,7 +53,7 @@ export default class BoardPresenter {
   };
 
   get films() {
-    const filterType = this.#filterModel.filter;
+    const filterType = this.#filterModel.filmFilter;
     const films = this.#filmModel.films;
     const filteredFilms = filter[filterType](films);
 
@@ -116,7 +116,7 @@ export default class BoardPresenter {
   }
 
   #renderNoTasks = () => {
-    this.#noFilmComponent = new FilmNoDataView(this.#filterModel.filter);
+    this.#noFilmComponent = new FilmNoDataView(this.#filterModel.filmFilter);
     render(this.#noFilmComponent, this.#allFilmListComponent.element);
   };
 
@@ -213,11 +213,7 @@ export default class BoardPresenter {
       remove(this.#noFilmComponent);
     }
 
-    if (resetRenderedAllFilms) {
-      this.#renderedAllFilms = ALL_FILM_COUNT_PER_STEP;
-    } else {
-      this.#renderedAllFilms = Math.min(filmCount, this.#renderedAllFilms);
-    }
+    this.#renderedAllFilms = resetRenderedAllFilms ? ALL_FILM_COUNT_PER_STEP : Math.min(filmCount, this.#renderedAllFilms);
 
     if (resetSortType) {
       this.#currentSortType = SortType.DEFAULT;

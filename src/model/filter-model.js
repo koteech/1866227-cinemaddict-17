@@ -5,11 +5,11 @@ import {FilterType} from '../const.js';
 export default class FilterModel extends Observable {
   #filter = FilterType.ALL;
 
-  get filter() {
+  get filmFilter() {
     return this.#filter;
   }
 
-  setFilter = (updateType, filter) => {
+  setFilmFilter = (updateType, filter) => {
     this.#filter = filter;
     this._notify(updateType, filter);
   };
